@@ -1,6 +1,9 @@
 # SC3010 Computer Security
 
-# Introduction
+## Topics
+- Introduction
+
+## Introduction
 
 - Computer security guarantees the correct usage of computer systems and desired properties in the presence of malicious entities
 - Critical to physical safety
@@ -21,9 +24,9 @@
     - From a developer perspective, security features are not designed correctly and they’re humans afterall, can make mistakes
     - From a external perspective, individual’s trust can be manipulated and social engineered
 
-# Basics of Cyber Security
+## Basics of Cyber Security
 
-## Threat Model
+### Threat Model
 
 - Used to describe adversaries and threats in consideration
 - Identify trusted and what untrusted components (TCB)
@@ -32,7 +35,7 @@
         - Define the actions that untrusted entities can perform within the system
     - Specify the security properties the system aims to achieve
 
-## Trust
+### Trust
 
 - **Degree to which an entity is expected to behave**
     - Examples of expected behaviour
@@ -43,7 +46,7 @@
         - Application injecting virus into a system
 - **Security cannot be established if no entities are trusted**
 
-## Trusted Computing Base (TCB)
+### Trusted Computing Base (TCB)
 
 - **Set of components that need to be trusted to ensure security of cyber system**
     - Components include OS, firmware, hardware and more
@@ -52,21 +55,21 @@
     - **Assume all components inside TCB are secure with valid justifications**
     - Prevent any damages from components outside TCB
 
-### Design Principles
+#### Design Principles
 
 - Unbypassable where there must be no way to breach the system security by bypassing TCB
 - Tamper-resistant where TCB should be protected against other parts outside of TCB and cannot modify TCB code or state
 - Verifiable where it should be possible to verify correctness of TCB
 - Follow KISS principle and have small TCB for easier verification and trustworthiness
 
-## Attacker Assumption
+### Attacker Assumption
 
 - Active attackers manipulate or disrupt systems by modifying data or injecting code
 - Passive attackers observe and gather information without interferring system
 - Attacker is generally aware of system design and architecture but lack detailed knowledge and must probe deeper using trial and error
 - Maybe be constrained by computing resource, time and parts of system that cannot be accessed directly
 
-## Security Properties
+### Security Properties
 
 - Using the CIA model
     - Confidentiality prevents unauthorized disclosure of information
@@ -81,15 +84,15 @@
     - Freshness ensures data or communications are current and not reused
     - Fault tolereance ensures system can continue to function correctly despite failures
 
-## Security Strategies
+### Security Strategies
 
 - Prevention by taking measures that prevent system from being damanged
 - Detection by taking measures to detect when, how, and by whom system was damaged by
 - Reaction by taking measures to recover system form damage and assume worst-case scenarion to better prepare
 
-## Design Principles
+### Design Principles
 
-### Least of Privilege
+#### Least of Privilege
 
 - **Give each entity the minimal permissions to complete tasks**
 - Given privilege when needed and revoke when task is completed
@@ -98,7 +101,7 @@
     - Never perform personal activities using root user
     - Photo editing application should only have access to the gallery and not microphone or location
 
-### Separation of Privilege
+#### Separation of Privilege
 
 - **To perform a privileged action, it requires multiple parties to work together to exercise the privilege**
 - Minimize risk of miuse by a single user and ensure no single entity has full control over critical processes
@@ -106,13 +109,13 @@
     - Financial system where transferring large sums requiring approval from employee and manager
     - Developer writing code that requires review from multiple teams before deployment
 
-### Defense in Depth
+#### Defense in Depth
 
 - **Increase difficulty of attacking entire system by stacking defenses**
 - High implementation cost
 - Entire effectiveness if often less than sum of all defenses
 
-### Security through Obscurity
+#### Security through Obscurity
 
 - **Rely on secrecy or concealing details of a system or its components**
 - If attacker does not know how a system works, they are less likely to compromise it
@@ -121,7 +124,7 @@
     - Sensitive files can be hidden behind obscure URL without proper authentication, but attack can discover URL through guessing and web crawling
     - Developer hides details of source code and vulnerabilities, but attackers can deobfuscate or analyze binary to discover vulnerabilities
 
-### Kerckhoff’s Principle and Shannon’s Maxim
+#### Kerckhoff’s Principle and Shannon’s Maxim
 
 - “the enemy knows the system”
 - Security of a system should not depend on secrecy of its design or algorithms

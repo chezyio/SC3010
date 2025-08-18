@@ -5,6 +5,7 @@
 -   Introduction
 -   Basics of Cyber Security
 -   Software Security 1
+-   Software Security 2
 
 ## Introduction
 
@@ -262,3 +263,216 @@ TBC
 -   Attackers include executable code (shellcode) in input
 -   The return address is overwritten to point to the shellcode's location in memory
 -   When function returns, program jumps to shellcode, running the attacker's code
+
+## Software Security 2
+
+### Format String Vulnerabilities
+
+-   `printf` in C prints a format string to the screen
+    -   Format string is a string with special format specifiers (escape sequences prefixed with %)
+    -   Can take more than one argument where first argument is the format string and the rest consists of values to ve substituted
+    -   Examples
+        -   printf(”Hello, world”)
+        -   printf(”Year %d”, 2014)
+        -   printf(”The value of pi: %f”, 3.14)
+        -   printf(”The first character in %s is %c”. “abc”, ‘a’)
+-   Escape sequences are essentially instructions
+
+    ```c
+    // unsafe
+    #include <stdio.h>
+    #include <string.h>
+    int main(int argc, char* argv[]) {
+        char user_input[100];
+        scanf("%s", user_input);
+        printf(user_input);
+    }
+
+    // safer
+    #include <stdio.h>
+    #include <string.h>
+    int main(int argc, char* argv[]) {
+        char user_input[100];
+        scanf("%s", user_input);
+        printf("%s\n", user_input);
+    }
+    ```
+
+    -   Attack works by injecting escape sequences into format strings
+    -   printf(user_input) treats user input as a format string, allowing attackers to use specifiers like %x, %s, or %n to leak memory, crash the program, or overwrite data
+    -   scanf("%s", user_input) does not limit input length, risking overflow of the 100-byte user_input buffer
+
+#### Leaking Information from Stack
+
+```c
+// correct function
+printf(“x value: %d, y value: %d, z value: %d”, x, y, z);
+
+// incorrect function
+printf(“x value: %d, y value: %d, z value: %d”, x, y);
+```
+
+-   For correct function,
+    -   Prints three variables (x, y, z) correctly
+    -   `%d` format specifiers tell printf to expect three integer values, which are provided as x, y, and z
+-   For incorrect function,
+    -   `printf` expects three integers (because of three %d specifiers), but only two (x and y) are provided
+    -   Stack doesn't know an argument is missing, so printf grabs whatever random data is next on the stack as the third value
+-   Danger
+    -   Data that do not belong to user will be printed out from the stack
+
+#### Crash the Program
+
+```c
+// correct function
+printf("%s", "Hello, world")
+
+// incorrect function
+printf("%s")
+```
+
+-   For correct function,
+    -   `%s`is a format specifier that tells printf to expect a string (a pointer to a sequence of characters)
+    -   `Hello, World` is the string, and its memory address (a pointer) is pushed onto the stack as an argument for `printf`
+    -   `printf` reads the pointer from the stack, finds the string in memory, and prints it correctly
+-   For incorrect function,
+    -   `printf` still looks for a string pointer on the stack, even though none was provided
+    -   It grabs whatever random data is on the stack at the expected position
+-   Danger
+    -   Address can be invalidated and program will crash
+
+#### Modify the Memory
+
+```c
+// correct function
+printf("13579%n", &i)
+
+// incorrect function
+printf("13579%n")
+```
+
+-   For correct function,
+    -   Format string `13579%n` tells `printf` to print `13579` (5 characters)
+    -   Use `%n` to store the number of characters printed so far (5) into the memory address provided as an argument\
+    -   `&i` is the address of an integer variable `i`, passed as an argument and pushed onto the stack
+    -   `printf` writes the number 5 (the count of characters printed) to the memory address `&i`, so `i` becomes 5
+-   For incorrect function,
+    -   For `%n`, it tries to write the number 5 (characters printed) to a memory address it expects on the stack
+    -   Since no argument was provided, printf grabs a random value from the stack, treating it as a memory address
+-   Danger
+    -   Attackers can overwrite important program flags that control access privileges
+    -   Attackers can overwrite return addresses on the stack, function pointers and more
+
+### Integer Overflow Vulnerabilities
+
+-   In mathematics, integers form an infinite set
+-   In a computer, integers are repsented in binary
+    -   To be specific a binary string of fixed length
+    -   Hence there is a finite number of integers
+-   Signed integers can be represented as 2’s complement
+-   MSB indicates the sign of the integer
+    -   0 for positive
+    -   1 for negative
+-   Overflow when an integer is increased over its maximal value or decreased below its minimal value
+    -   Unsigned overflow is when binary representation cannot represent an integer value
+    -   Signed overflow is when a value is carried over to the sign bit
+
+#### Artihmetic Overflow
+
+-   Happens when a calculation produces a result too large to fit in the memory space assigned to it
+
+##### Example
+
+-   4-bit integer can store numbers from 0 to 15
+-   Adding 1 to 15 will result in 16
+-   Overflows and wrapes around, resulting in 0 or incorrect value like -16 in signed integers
+
+#### Widthness Overflow
+
+-   Typically refers to issues when data is moved between variables of different sizes in memory, causing data loss or corruption
+
+##### Example
+
+-   Suppose having a 32-bit integer and storing it in a 16-bit integer
+-   Gets truncated if number is too big
+-   Very likely will end up with a wrong number stored
+
+#### Bypass Length Checking
+
+-   Must check for individual lengths and combined length to defend against buffer overruns
+
+#### Write to Wrong Memory Location
+
+-   Must always validate array indices to ensure they’re within the array’s bounds
+-   To access an array on a 16-bit machine where memory addresses and calculations are limited to 16 bits
+    -   Each array element is usually 2 bytes
+    -   When addition of addresses overflows, it wraps around
+    -   Wrapping around would mean potentially overwriting critical data
+
+#### Truncation Errors
+
+-   Bad type conversion can cause widthness overflows
+
+#### Signed and Unsigned Vulnerability
+
+-   Another bad conversion between signed and unsigned integers
+
+### Scripting Vulneralbilities
+
+-   Scirpting languag is used to
+    -   Construct commands from predefined code fragments and user input at runtime
+    -   Script is then passed to another software component where it is executed
+    -   Domain-specific language is used for a particular environemnt
+-   Vulnerabilities
+    -   Additional commands can be hidden in the user input
+    -   System will execute malicious command without any awareness
+
+#### Common Gateway Interface Script
+
+```bash
+# command running on server
+cat $file | mail $clientaddress
+
+# normal case
+cat hello.txt | mail 127.0.0.1
+
+# compromised input where attacker set $clientadress as something malicious
+cat hello.txt | mail 127.0.0.1 | rm -rf /
+
+```
+
+-   CGI script is a standard way in which information may be passed to and from the browser and server
+
+#### SQL Injection
+
+```sql
+SELECT * FROM client WHERE name = $name
+
+# normal case
+SELECT * FROM client WHERE name = 'bob'
+
+# compromised input where attacker adds extra condition
+# since 1=1 is always true, the entire database is returned
+SELECT * FROM client WHERE name = 'bob' OR 1=1
+```
+
+#### Cross Site Scripting (XSS)
+
+-   Targets web application that may require users to provide input
+-   Vulnerabilities
+    -   Malicious user may encode executable content in input which can be echoed back in a webpage
+    -   Victim later visits the web page and his web browser may execute malicious commands on his computer
+
+#### Stored XSS (Persistent)
+
+-   Attacker discovers a XSS vulnerability in a website
+-   Attacker embeds malicious commands inside input and sends it to website
+-   Now the command has been injected to the website
+-   Victim then browses the website and malicious command will run on the victim’s computer
+
+#### Reflected XSS (Non-persistent)
+
+-   Attacker discovers a XSS vulnerability in a website
+-   Attacker creates a link with malicious commands inside
+-   Attacker distribute link to victims
+-   Victim clicks on link and malicious commands get activated

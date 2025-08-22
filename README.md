@@ -6,6 +6,7 @@
 -   Basics of Cyber Security
 -   Software Security 1
 -   Software Security 2
+-   Software Security 3
 
 ## Introduction
 
@@ -476,3 +477,234 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
 -   Attacker creates a link with malicious commands inside
 -   Attacker distribute link to victims
 -   Victim clicks on link and malicious commands get activated
+
+## Software Security 3
+
+### Safe Programming
+
+-   Unsafe C library functions that have no range checking
+    ```c
+    strcpy (char *dest, char *src)
+    strcat (char *dest, char *src)
+    gets (char *s)
+    ```
+-   Safer versions
+    ```c
+    strncpy (char *dest, char *src, int n)
+    strncat (char *dest, char *src, int n)
+    fgets(char *BUF, int N, FILE *FP);
+    ```
+    -   `strncpy()` adds another parameter to indicate intended length of intended characters to copy from source to destination
+        -   If n is less than the length of `src` (excluding \0), `dest` won't be null-terminated, which can cause problems when using `dest` as a string
+        -   Always ensure `dest` has enough space for n characters (and ideally an extra slot for \0)
+        -   If n is greater than or equal to the length of `src` (including its \0), the null terminator is copied, and no manual addition is needed
+
+#### Safe Libraries
+
+-   libsafe
+    -   Check some common traditional C functions
+        -   Examine current stack and frame pointers
+        -   Denies attempts to write data to stack that overwrite return address or parameters
+-   glib.h
+    -   Provides Gstring type for dynamically growing null-terminated strings in C
+-   Strsafe.h
+    -   A new set of string-handling functions for C and C++
+    -   Guarantees null-termination and always takees destination size as argument
+-   SafeStr
+    -   Provides new, high-level data type for strings, tracks accounting info for strings
+    -   Performs many other operations
+-   Glib
+    -   Resizable and bounded
+-   Apache portable runtime
+    -   Resizable and bounded
+
+#### Safe Language
+
+-   Strong type
+-   Ada, Perl, Python, Java, C#, Visual Basic all have automatic bounds checking and do no not have direct memory access
+-   Rust
+    -   Designed to be a safe, concurrent and practical
+    -   Supports functional and imperative-procedural paradigms
+    -   Does not permit null pointers, dangling pointers or data races
+    -   Memory and other resources are managed through RAII
+-   Go
+    -   Type safe, garbage-collected but C-looking lanugage
+    -   Good concurrency model for taking advantage of multi-core machines
+    -   Appropriate for server architectures
+
+### Software Testing
+
+#### Manual Code Reviews
+
+-   Peer review is important before deployment
+    -   Check for wrong use of data
+        -   Variables not initialized
+        -   Dangling pointers
+        -   Array index out of bounds
+    -   Faults in delcarations
+        -   Undeclared variable
+        -   Double declaration
+    -   Faults in computation
+        -   Division by zero,
+        -   Mixed-type expressions
+    -   Faults in relational expressions
+        -   Incorrect boolean operator
+        -   Wrong operator priorities
+    -   Faults in control flow
+        -   Infinite loops
+        -   Loops that execute n-1 or n+1 times instead of n
+
+#### Software Tests
+
+-   Unit tests can be written to test individual components or functions of software in isolation
+    -   Should cover all code including error handling
+-   Regression tests can be written to test that new code changes to do negatively affect existing functionality
+    -   Verify that software continues to function correctly after updates
+-   Integration tests can be written to test interaction between multiple software modules or systems
+    -   Enssure components work together as expected
+
+#### Static Analysis
+
+-   Analayze source code or binary before running it during compilation
+    -   Explore all possible execution consequences with all possible input
+    -   Approximate possible states
+    -   Identify issues during development and reduces cost of fixing vulenrability
+    -   Relies on predefined rules or policies to identify patterns of insecure coding practice
+-   Limations
+    -   May produce false positives requring manual review
+    -   Cannot detect runtime issues
+
+#### Dynamic Analysis — Penetration Testing
+
+-   Proactive security methods are used
+    -   Simulate attacks on a system to identify weakness that is exploitable
+    -   Goal is to identify vulenrabilites before attackers do
+    -   Ensure compliacne wuth security regulations and improve the overall security postuer of systems and applications
+-   General procedure
+    -   Test system with tools
+    -   Intepret testing results
+    -   Checking exploitability
+        -   Develop exploit or go back to first step
+
+#### Dynamic Analysis — Fuzzing
+
+-   Automated and scalable approach to test software at runtime
+    -   Bombard program with random, corrupted or unexpeted data to identify how it behanves under unexpected conditions
+    -   Observe program for crashes, memory issues or unexpected behaviours
+    -   Examine failures to determine if they represent exploitable vulneratbilites
+-   Limitations
+    -   Limited code coverage
+    -   Require expert analysis to assess whether system crashes are explitable
+    -   May miss logic flaws that do not result in crashes
+-   Types of fuzzing
+    -   Mutation-based
+        -   Collects a corpus of inputs that explores as many states as possible
+        -   Perturbe inputs randomly and possibly guided by heuristics
+        -   Simple to set up and can be used for off-the-shelf software
+    -   Generation-based
+        -   Convert a specification of input format into a generative procedure
+        -   Generate test cases according to procedure with pertubations
+        -   Get higher coverage by leveraging knowledge of input format
+        -   Requires a lot of effort to setup and domain specific
+    -   Coverage-guided
+        -   Using tradiontal fuzzing strategies to create new test cases
+        -   Test program and measure code coverage
+        -   Using code coverage as feedback to craft input for uncovered code
+        -   Good at finding new states and combine well with other solutions
+
+### Compiler and System Support
+
+#### Address Space Layout Randomization
+
+-   Put segment of each memory region (data, code, stack, heap) in a random locatioon every time program is launched
+-   Harder for attacker to get address of malicious function
+-   Within each segment, relative addresses are the same
+-   No performance overhead
+-   Deployed in mainstream systems (Linux, Android, iOS, Windows)
+-   However, attackers can still get the base address of a stack
+    -   Since addresses within the stack are normally fixed, attacker can compute addresses of any data in the stack
+    -   Attacker can use brute force method to guess base address
+    -   Format string vulnerability allows attacker to print out base pointer from the stack
+
+#### StackGuard
+
+-   Makes it difficult for attackers to only modify return address without overwriting stack memory in front of return address
+-   Steps
+    -   Embed a canary word next to return address (EIP) on the stack whenever a function is called
+        -   Canary value needs to be random and cannot be guessed by attacker
+    -   When stack-buffer overflows into the funtion return address, canary has to be overwritten as well
+    -   Every time the function returns, check whether the canary is value is changed
+    -   If so, someone is possibly attacking the program with stack-buffer overflows and program will be aborted
+-   Teminator canary is a specific type of canary value designed to be harder for attackers to bypass
+    -   Uses special values that like null bytes or other string terminators
+    -   Chosen because they can disrupt an attacker’s attempt to overwrite the stack with malicious data, as many string-handling functions stop processing when they encounter such terminators
+-   However, attackers can still obtain the canary value which will be used to overwrite the canary in the stack without changing the value
+    -   By using format string vulnerability, attacker can print out values in the stack
+    -   Attacker can use brute-force method to guess canary as well
+-   Attackers can also overwrite the canary without touching the canary
+    -   Format string vulnerability allows attacker to write to any location in memory and no need to be consecutive with the buffer
+    -   Heap overflows do not overwrite a stack canary
+
+#### Shadow Stack
+
+-   Keep a copy of the stack in memory
+    -   On function call, push EIP to shadow stack
+    -   On function return, check that top of the shadow stack is the same EIP on the stack
+    -   If there is a difference, then terminate program
+-   Requires support of hardware
+    -   Intel CET
+        -   New register SSP (Shadow Stack Pointer)
+
+#### StackShield
+
+-   GNU C compiler extension that protects return address
+-   Separate control (return address) from the data
+    -   On function call, copy EIP to a non-overflowable area
+    -   On function return, return address is restored
+    -   Even if the return address on the stack is altered, it has no effect since the original return address will be copied back before returned address is used to jump back
+
+#### Common Limitations of StackGuard, Shadow Stack and StackShield
+
+-   **Only protects the return address but no other important pointers**
+-   Function pointers can be hijacked if the attacker cannot overwrite the return address due to canary
+
+#### PointGuard
+
+-   Compiler-based approach to protect function pointers from being overwritten
+    -   Encrypt all points while stored in memory, decrypt them when loaded into CPU registers for use
+-   Secret key is randomly generated for each program when launched
+-   Pointer encryption happens when loading a pointer to memory by encrypting it with key (typically XOR)
+-   Pointer decryption happens before a pointer is used by CPU
+    -   **Ensuring pointer is in its original, unencrypted form only during actual use and minimizes window of vulnerability**
+
+#### Pointer Authentication
+
+-   Introduced in ARM to protect function pointers
+    -   Appends a cryptographic signature known as Pointer Authentication Code (PAC) to pointers
+    -   Allow CPU to verify integrity of pointers before they are used
+-   Steps
+    -   Pointer signing — when pointer is created or updated, PAC is generated using cryptographic hash of the pointer’s value and a secret key, then PAC is embedded into unused high-order bits of pointer
+    -   Pointer verification — before pointer is used by CPU, system verifies its integrity by recalculating PAC and comparing it to the one stored in pointer, if match then pointer can be used
+    -   Without knowing the correct key, attacker cannot generate the correct PAC
+
+#### Non-Executable Memory
+
+-   Attackers inject malicious code into memory and attempts to jump to it
+-   We can configure writable memoruy region to be non-executable and thus preventing malicious code from being executed
+-   System methods
+    -   Linux uses ExecShield
+    -   Winows uses Data Execution Prevention (DEP)
+-   Hardware support
+    -   AMD64
+    -   Intel x86
+    -   ARM
+    -   Each page table entry has an attribute to control if page is executable
+-   However, non-executable memory protection does not work when attacker does not inject malicious code, but just using existing code
+    -   Return-to-lib attack
+        -   Replace return address with address of an existing function in the standard C library or common OS function
+    -   Return-oriented Programming
+        -   Construct malicious code by chaining pieces of existing code (gadget) from different programs
+        -   Gadget is a small set of assembly instructions that already exist in the system, ususally end with a return (ret), which pops the bottom of the stack as next instruction
+    -   Use of executable heap for JIT compilation conflicts non-executable memory protection
+        -   Just-in-time compilation compile heavily-used parts of the program while interpreting the rest
+        -   Exploit runtime profiling to perform targeted optimizations thtn compilers targeting native code directly

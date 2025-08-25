@@ -7,6 +7,7 @@
 -   Software Security 1
 -   Software Security 2
 -   Software Security 3
+-   Operating System Security 1
 
 ## Introduction
 
@@ -303,6 +304,9 @@ TBC
     -   printf(user_input) treats user input as a format string, allowing attackers to use specifiers like %x, %s, or %n to leak memory, crash the program, or overwrite data
     -   scanf("%s", user_input) does not limit input length, risking overflow of the 100-byte user_input buffer
 
+-   Must have more format specifiers than actual arguments in order to exploit format string vulnerability
+    -   If there are more arguments than format specifiers, there's no vulnerability as extra arguments will be ignored by the stack
+
 #### Leaking Information from Stack
 
 ```c
@@ -364,6 +368,13 @@ printf("13579%n")
     -   Attackers can overwrite important program flags that control access privileges
     -   Attackers can overwrite return addresses on the stack, function pointers and more
 
+#### Fixing Format String Vulnerability
+
+-   Limit the ability of attackers to control format strings
+    -   Hard-coding format strings (use `printf("%s\n", user_input)` instead of `printf(user_input)`)
+    -   Do not use `%n`
+    -   Compiler suppirt to match `printf` arguments with format strings
+
 ### Integer Overflow Vulnerabilities
 
 -   In mathematics, integers form an infinite set
@@ -388,6 +399,10 @@ printf("13579%n")
 -   Adding 1 to 15 will result in 16
 -   Overflows and wrapes around, resulting in 0 or incorrect value like -16 in signed integers
 
+#### Bypass Length Checking
+
+-   Must check for individual lengths and combined length to defend against buffer overruns
+
 #### Widthness Overflow
 
 -   Typically refers to issues when data is moved between variables of different sizes in memory, causing data loss or corruption
@@ -398,25 +413,14 @@ printf("13579%n")
 -   Gets truncated if number is too big
 -   Very likely will end up with a wrong number stored
 
-#### Bypass Length Checking
-
--   Must check for individual lengths and combined length to defend against buffer overruns
-
-#### Write to Wrong Memory Location
-
--   Must always validate array indices to ensure they’re within the array’s bounds
--   To access an array on a 16-bit machine where memory addresses and calculations are limited to 16 bits
-    -   Each array element is usually 2 bytes
-    -   When addition of addresses overflows, it wraps around
-    -   Wrapping around would mean potentially overwriting critical data
-
 #### Truncation Errors
 
 -   Bad type conversion can cause widthness overflows
 
-#### Signed and Unsigned Vulnerability
+#### Fixing Integer Overflow Vulnerability
 
--   Another bad conversion between signed and unsigned integers
+-   Better length checking
+-   Safe type conversion where converting from a type of smaller size to that or larger size
 
 ### Scripting Vulneralbilities
 
@@ -444,6 +448,19 @@ cat hello.txt | mail 127.0.0.1 | rm -rf /
 
 -   CGI script is a standard way in which information may be passed to and from the browser and server
 
+##### Defenses against Command Injection
+
+-   Avoid shell commands
+-   Use more secure APIs
+    -   Python: `subprocess.run()`
+    -   C: `execve()`
+-   Input inspection
+    -   Sanitize and remove dangerous characters
+    -   Validate and reject malformed input
+    -   Whitelist allowed values
+-   Drop privileges
+    -   Run process as non-root users
+
 #### SQL Injection
 
 ```sql
@@ -456,6 +473,17 @@ SELECT * FROM client WHERE name = 'bob'
 # since 1=1 is always true, the entire database is returned
 SELECT * FROM client WHERE name = 'bob' OR 1=1
 ```
+
+##### Defenses against SQL Injection
+
+-   Use parameterized queries
+    -   Ensure user input is treated as data and not command
+-   Use ORM
+    -   Abstract SQL generation and reduce risk of generation
+-   Input inspection
+    -   Sanitize and remove dangerous characters
+    -   Validate and reject malformed input
+    -   Whitelist allowed values
 
 #### Cross Site Scripting (XSS)
 
@@ -477,6 +505,17 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
 -   Attacker creates a link with malicious commands inside
 -   Attacker distribute link to victims
 -   Victim clicks on link and malicious commands get activated
+
+##### Defenses against Cross Site Scripting
+
+-   Use Content Security Policy (CSP)
+    -   Instruct browser to only use resources loaded form specific places
+    -   Policies are enforced by browser
+        -   Disallow all inline scripts
+        -   Only allowing scripts from specific domains
+-   Input inspection
+    -   Sanitize and remove dangerous characters
+    -   Validate and reject malformed input
 
 ## Software Security 3
 
@@ -708,3 +747,273 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
     -   Use of executable heap for JIT compilation conflicts non-executable memory protection
         -   Just-in-time compilation compile heavily-used parts of the program while interpreting the rest
         -   Exploit runtime profiling to perform targeted optimizations thtn compilers targeting native code directly
+
+## Operating System Security 1
+
+### Security Challenges in Modern OS
+
+-   From single user to multi user
+    -   DOS is truly single user
+    -   MacOS, Linux, Windows are multi user
+    -   Cloud computing allows multiple users all over the world to run on the same system and they do not know each other
+        -   Not all user are trusted
+-   From trusted apps to untrusted apps
+    -   Simple real-time systems only run one specific app from trusted sources
+    -   Modern PCs and smartphones run apps from third-party developers
+        -   Not all apps are trusted
+-   From standalone systems to networked systems
+    -   Isolated computer systems only need to protect against physical threats
+    -   Once connected to network, system faces external unknown threats
+        -   Not all network components are trusted
+
+### Security Protection Stages in OS
+
+-   OS is reponsible for protecting apps and resources inside it
+    -   OS controls what user/processes can do and cannot do
+
+#### Authentication
+
+-   Computer checks if a user is who they claim to be
+    -   **Something you know — password, PIN, public/private keys**
+    -   **Something you have — smart card, hardware tokens**
+    -   **Something you are — biometrics, face recognition, voice recognition**
+
+#### Something you Know
+
+-   Password is the most common way to prove who you are
+    -   Used in many applications
+    -   Security of password-based authentication mechanism depends on strength of password
+        -   Trade-off between security and convenience
+    -   Weak password is a character combination that is easy for friends, bad actors or password-hacking software to guess
+        -   Short passwords (singel word or numerical phrase)
+        -   Recgonizable keystroke patterns (QWERTY)
+        -   Personal information in password (birthday, name)
+        -   Repeated letters or numbers
+    -   Strong password is a long combination of unique characters that is difficult for other people to guess or technology to crack
+        -   Lengthy combination with various character types such as numbers, letters and symboks
+        -   Mnemonic where passwords are inspired by events only notable on one
+        -   Non-dictionary words make it harder for software to crack as dictionary words are publicly known combinations stored in database where cybercriminals can access
+    -   Requires periodic change and password must be different from the used ones to ensure strong authentication system
+
+##### Something you Have
+
+-   Different types of posessions for authentication
+    -   Tokens
+    -   Smart cards
+-   Limitations of physical belongings
+    -   Easy to misplace
+    -   Often combined with user knowledge to form 2FA
+    -   High cost
+    -   Possible to be damaged
+    -   Non-standard algorithms
+
+##### Something you Are
+
+-   Biometrics measure some physical characteristics
+    -   Fingerprint, face recognition, retina scanners, voice
+    -   Can be extremely fast and accurate
+-   Limitations
+    -   Private but no secret as biometrics may be emcoded surfaces like handles, glass
+    -   Revocation is difficult as you cannot create a new one
+
+#### Authorization
+
+-   Access control implements a security policy that specifies who or what may have access to each specific resource in a computer system and the type of access that is permitted in each instance
+-   Mediates between a user and system resource
+
+#### Subject
+
+-   Process or user requesting for access
+-   Typically held accountable for the actions that is initiated
+-   Types of subjects
+    -   Owner — creator of a resource or system administrator for system resource
+    -   Group — privilege can be assigned to a group of users where policy is applied to the entire group itself
+    -   Other — least amount of access is granted to user who are able to access the system but no included in any categories
+
+#### Object
+
+-   Resource that is security sensitive
+-   Entity used to contain or receive information
+-   Records, blocks, page, segments, files, directories, mailboxes, messages, programs
+
+#### Operations
+
+-   Actions taken using that resource
+-   Read where user may view information and have the ability to copy or print
+-   Write where user may modify data in the system resource
+-   Execute where user may execute specified programs such as files or records
+-   Delete where user may delete certain system resource such as files or records
+-   Create where user may create new files or records
+-   Search where user may list files in a directory or search
+
+#### Access Control
+
+##### Access Control Matrix
+
+|            | **File 1**           | **File 2**           | **File 3**           | **File 4**           |
+| ---------- | -------------------- | -------------------- | -------------------- | -------------------- |
+| **User A** | Read, Write, Execute |                      | Read, Write, Execute |                      |
+| **User B** | Read                 | Read, Write, Execute | Write                | Read                 |
+| **User C** | Read, Write          | Read                 |                      | Read, Write, Execute |
+
+-   New rows can be added for new subjects (typically done by system administrator)
+-   New columns can be added for new objects (typically done by system administrator)
+-   Permission $r$ can be granted for subject $s$ over object $o$ by entering $r$ to entry $M_{s,o}$ (typically done by the resource owner or system administrator)
+-   Permission $r$ can be revoked for subject $s$ over object $o$ by removing $r$ from entry $M_{s,o}$ (typically done by the resource owner or system administrator)
+-   Subject can be destoryed by deleting the row
+-   Object can be destroyed by deleting column
+
+##### Access Control List
+
+-   Access control list is another way to represent control matrix given that it may be sparse
+-   Decomposition
+    -   By columns
+    -   By rows
+-   Decomposition by columns takes each object and ACL list users their permitted access rights
+    -   Convenient when determining which subjects have what access to a particular resource
+-   Decomposition by rows takes a C-list and specifiy authorized objects and operations for a particular user
+    -   Convenient when determining the access rights available to a specific user
+
+#### Resource Management in Unix
+
+-   Files, directories, memory devices and I/O devices are uniformly treated as resources
+    -   Resources are objects of access control
+    -   Each resource has a single user owner and group owner
+-   Three permission with three subjects
+    -   Read (r), write(w) and execute(x)
+    -   Owner, group, other
+    -   Examples
+        -   rw-r—r—
+            -   Read and write access for owner
+            -   Read access for group
+            -   Read access for others
+            -   Represented as 110 100 100: 644 in octal
+        -   rwx———
+            -   Read, write and execute access for owner
+            -   No access for group
+            -   No access for other
+            -   Represented as 111 000 000: 700 in octal
+    -   Permissions can be adjusted by
+        -   Change permission
+            -   `chmod XXX` where XXX is the octal representation of desired permission
+        -   Change ownership
+            -   `chown user:group filename`
+
+#### Controlled Invocation
+
+-   Superuser privilege is required to execute certain OS functions
+    -   Example
+        -   Password changing
+        -   User passwords are stored in file /etc/shadow
+        -   FIle is owned by root superuser where a normal usr has no access to it
+        -   When a normal user wants to change password with program passwd, program needs to give additional permisions to write to /etc/shadow
+    -   SUID is a special permission flag for a program
+        -   Allows a program to run with the permissions of its owner, rather than the user executing it
+        -   When set on an executable file, the program runs as if launched by the file's owner, granting access to resources or actions the owner is authorized for, even if the user running it has lower privileges
+-   Potential dangers
+    -   As the user has the program owner’s privileges when running a SUID program , program should only do what the owner intended
+    -   By tricking a SUID program owned by root to do unintended things, an attacker can act as the root
+-   Security considerations
+    -   All user input must be processed with extreme care
+    -   Programs should have SUID status only if really necessary
+    -   Integrity of SUID programs must be monitored
+
+#### Logging, Monitoring and Auditing
+
+-   Purposes
+    -   Intrusion detection where unauthrozied access or system changes can be logged
+    -   Forensics and investigation with historical data for incident response
+    -   Accountability to track user actions and commands
+    -   Performance monitoring to assist in debugging applications and diagnosing
+-   Challenges
+    -   High storage and processing requirements to precisely select and record critical data
+    -   Attackers may erase of modify logs
+    -   May compromise user privacy
+-   Examples of monitored data
+    -   System call traces describes the activities or behaviors of process running in system
+    -   Log file is the information on user activity, including login record and keystroke command
+    -   File integrity checksums periodically scan critical files for changes and compare cryptograhic checksums
+    -   Register access monitor access to registry
+    -   Kernel and driver-level monitoring this source provides insight into OS kernel-level anomalies
+    -   Resource usage for CPU, memory and I/O utilization and activities can indicate malicious activities
+    -   Network activities include established connections and received packets
+
+#### Intrusion Detection
+
+-   Intrusion Detection System (IDS) is a system used to detect unauthorized intrusions into computer systems
+-   IDS can be implemented at different layers including network-based IDS, host-based IDS
+-   Main focus here is on host-based IDS to monitor single host
+-   Main components
+    -   Sensors are responsible for collecting data
+    -   Analyzers are repsonsible for determining if intrusion has occured and possible evidence with possible guidnace of actions to take
+    -   User interface enables a user to view output from the system or control the behaviour of system
+-   Detection methodologies
+    -   Signature-based
+        -   Flag any activity that matches structure of a known attack
+        -   Maintain a blacklist of patterns that are not allowed
+        -   Advantage
+            -   Simple and easy to build
+            -   Good at detecting known attacks
+        -   Disadvantage
+            -   Cannot catch new attacks without a known signature
+    -   Anomaly-based
+        -   Develop a model what normal activities look like and alert on any activities that deviate from normal
+        -   Whitelisting to keep a list of allowed patterns
+        -   Advantage
+            -   Can detect new attacks
+        -   Disadvantage
+            -   False positive rate can be high
+
+### Privilege Management
+
+-   Kernel mode has the highest privilege running the critical functions and services
+-   User mode has the least privilege
+-   Entities in higher rings cannot call functions and access objects in lower rings directly
+    -   Context switch is required to achieve the calling
+-   Status flag allows system to work in different modes
+
+#### Context Switch
+
+-   Different events can trigger transition from user to kernel levels
+    -   System call is where user application explicity makes a request to kernel for privileged operations
+    -   Trap is when user application gets an exceptional event or error and requests the kernel to handle
+    -   System call and trap belong to software interrupts
+    -   Hardware interrupt is when hardware issue a signal to the CPU to indicate an event needs immediate attention
+-   Switch procedure
+    -   CPU store processes state and swtich to kernel mode by setting status flag
+    -   Kernel handles interrupt based on interrupt vector in interrupt table
+    -   CPU switches back to user mode and restore states
+
+#### System Call
+
+-   Interface that allows user-level process to request functions or services from kernel level
+-   Examples
+    -   Process control
+    -   File management
+    -   Device management
+-   Issuing a system call
+    -   System call table contains pointers in the kernel region to different system call functions
+    -   A user process passes the index of the system call and paramters with the API `syscall(SYS_CALL, arg1, arg2,…)`
+
+#### Rootkit
+
+-   Malware that obtains root privileges to compromise computer
+    -   Root user does not go through any security checks and can perform any actions
+    -   Hacker insert and execute arbitrary malicious code in system’s code path
+    -   Hacker can hide its existence from being detected
+-   Root privileges can be gained by a hacker through buffer overflow, format string and other vulnerabilities
+-   Rootkit changes pointers of certian entries in system-call table
+    -   Other processes calling these system calls will execute the attacker’s code
+-   Example
+    -   `syscall_open` is used to display running processes
+    -   Rootkit redirects this sytem call to a malicious `new_syscall_open`
+    -   If the name matches the malicious name (e.g., a file or process the rootkit wants to hide), the rootkit’s new_syscall_openreturns NULL, making it seem like the file doesn’t exist, so it’s hidden (e.g., from the ps command).
+    -   Otherwise call normal `syscall`
+-   Rootkit can also directly change system call functions
+    -   In essence, the rootkit sneaks in, does its dirty work, and then hands control back to the legitimate system call, making it hard to detect while still achieving its malicious goals
+    -   Target the syscall_open function: The syscall_open is a system call in the operating system that handles opening files. The rootkit aims to hijack this function.
+    -   Replace the first 7 bytes: The rootkit modifies the first 7 bytes of the syscall_open function's code with a "jump" instruction. This jump redirects the program flow to a malicious function, malicious_open, instead of the normal syscall_open.
+    -   Malicious function behavior:
+        -   The malicious_open function runs some harmful code (e.g., logging sensitive file access, hiding specific files, or injecting malicious actions).
+        -   After performing its malicious tasks, it restores the original 7 bytes of syscall_open to cover its tracks.
+        -   Finally, it calls the original syscall_open function to ensure the system behaves as expected, so the user or system doesn't notice anything unusual

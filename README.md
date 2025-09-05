@@ -536,6 +536,8 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
     -   `strncpy()` adds another parameter to indicate intended length of intended characters to copy from source to destination
         -   If n is less than the length of `src` (excluding \0), `dest` won't be null-terminated, which can cause problems when using `dest` as a string
         -   Always ensure `dest` has enough space for n characters (and ideally an extra slot for \0)
+            -   `strncpy()` does not automatically add terminator at the end
+            -   Though `strcpy()` adds a terminator
         -   If n is greater than or equal to the length of `src` (including its \0), the null terminator is copied, and no manual addition is needed
 
 #### Safe Libraries
@@ -560,6 +562,7 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
 #### Safe Language
 
 -   Strong type
+-   Always a trade-off between flexibility and security
 -   Ada, Perl, Python, Java, C#, Visual Basic all have automatic bounds checking and do no not have direct memory access
 -   Rust
     -   Designed to be a safe, concurrent and practical
@@ -615,6 +618,7 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
 
 #### Dynamic Analysis — Penetration Testing
 
+-   Mainly use tools to generate effective test cases
 -   Proactive security methods are used
     -   Simulate attacks on a system to identify weakness that is exploitable
     -   Goal is to identify vulenrabilites before attackers do
@@ -638,7 +642,7 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
 -   Types of fuzzing
     -   Mutation-based
         -   Collects a corpus of inputs that explores as many states as possible
-        -   Perturbe inputs randomly and possibly guided by heuristics
+        -   Perturbe inputs randomly (bit flips, integer increments, substitute with small, large, negative integers) and possibly guided by heuristics
         -   Simple to set up and can be used for off-the-shelf software
     -   Generation-based
         -   Convert a specification of input format into a generative procedure
@@ -729,7 +733,7 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
 #### Non-Executable Memory
 
 -   Attackers inject malicious code into memory and attempts to jump to it
--   We can configure writable memoruy region to be non-executable and thus preventing malicious code from being executed
+-   We can configure writable memory region to be non-executable and thus preventing malicious code from being executed
 -   System methods
     -   Linux uses ExecShield
     -   Winows uses Data Execution Prevention (DEP)

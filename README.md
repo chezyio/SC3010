@@ -751,6 +751,8 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
     -   Use of executable heap for JIT compilation conflicts non-executable memory protection
         -   Just-in-time compilation compile heavily-used parts of the program while interpreting the rest
         -   Exploit runtime profiling to perform targeted optimizations thtn compilers targeting native code directly
+        - If non-executable memory protection is enabled, then cannot use JIT
+            If JIT is used, then program is vulnerable to buffer overflow attacks
 
 ## Operating System Security 1
 

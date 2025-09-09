@@ -751,7 +751,7 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
     -   Use of executable heap for JIT compilation conflicts non-executable memory protection
         -   Just-in-time compilation compile heavily-used parts of the program while interpreting the rest
         -   Exploit runtime profiling to perform targeted optimizations thtn compilers targeting native code directly
-        - If non-executable memory protection is enabled, then cannot use JIT
+        -   If non-executable memory protection is enabled, then cannot use JIT
             If JIT is used, then program is vulnerable to buffer overflow attacks
 
 ## Operating System Security 1
@@ -765,7 +765,7 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
         -   Not all user are trusted
 -   From trusted apps to untrusted apps
     -   Simple real-time systems only run one specific app from trusted sources
-    -   Modern PCs and smartphones run apps from third-party developers
+    -   Time-sharing systems like modern PCs and smartphones run apps from third-party developers
         -   Not all apps are trusted
 -   From standalone systems to networked systems
     -   Isolated computer systems only need to protect against physical threats
@@ -826,6 +826,10 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
 
 -   Access control implements a security policy that specifies who or what may have access to each specific resource in a computer system and the type of access that is permitted in each instance
 -   Mediates between a user and system resource
+-   Basic elements
+    -   Subject
+    -   Object
+    -   Operations
 
 #### Subject
 
@@ -835,6 +839,7 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
     -   Owner — creator of a resource or system administrator for system resource
     -   Group — privilege can be assigned to a group of users where policy is applied to the entire group itself
     -   Other — least amount of access is granted to user who are able to access the system but no included in any categories
+-   System administrator typically has highest privilege and can assign ownership to objects
 
 #### Object
 
@@ -879,6 +884,7 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
     -   Convenient when determining which subjects have what access to a particular resource
 -   Decomposition by rows takes a C-list and specifiy authorized objects and operations for a particular user
     -   Convenient when determining the access rights available to a specific user
+-   ACL is object oriented while C-list is subject oriented
 
 #### Resource Management in Unix
 
@@ -916,6 +922,7 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
     -   SUID is a special permission flag for a program
         -   Allows a program to run with the permissions of its owner, rather than the user executing it
         -   When set on an executable file, the program runs as if launched by the file's owner, granting access to resources or actions the owner is authorized for, even if the user running it has lower privileges
+        -   /bin/login, bin/at, /bin/su are some SUID programs
 -   Potential dangers
     -   As the user has the program owner’s privileges when running a SUID program , program should only do what the owner intended
     -   By tricking a SUID program owned by root to do unintended things, an attacker can act as the root
@@ -961,7 +968,7 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
             -   Simple and easy to build
             -   Good at detecting known attacks
         -   Disadvantage
-            -   Cannot catch new attacks without a known signature
+            -   Cannot catch new attacks without a known signature like zero-days
     -   Anomaly-based
         -   Develop a model what normal activities look like and alert on any activities that deviate from normal
         -   Whitelisting to keep a list of allowed patterns
@@ -973,6 +980,7 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
 ### Privilege Management
 
 -   Kernel mode has the highest privilege running the critical functions and services
+    -   Technically, hypervisor has the highest privilege
 -   User mode has the least privilege
 -   Entities in higher rings cannot call functions and access objects in lower rings directly
     -   Context switch is required to achieve the calling
@@ -982,7 +990,7 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
 
 -   Different events can trigger transition from user to kernel levels
     -   System call is where user application explicity makes a request to kernel for privileged operations
-    -   Trap is when user application gets an exceptional event or error and requests the kernel to handle
+    -   Trap is when user application gets an exceptional event (e.g. division by zero) or error (e.g. access data beyond memory region) and requests the kernel to handle
     -   System call and trap belong to software interrupts
     -   Hardware interrupt is when hardware issue a signal to the CPU to indicate an event needs immediate attention
 -   Switch procedure
@@ -1008,6 +1016,7 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
     -   Hacker insert and execute arbitrary malicious code in system’s code path
     -   Hacker can hide its existence from being detected
 -   Root privileges can be gained by a hacker through buffer overflow, format string and other vulnerabilities
+    -   There can possibly be a flag on a stack that denotes privilege mode where hackers can overwrite using buffer overflow
 -   Rootkit changes pointers of certian entries in system-call table
     -   Other processes calling these system calls will execute the attacker’s code
 -   Example

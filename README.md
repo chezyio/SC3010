@@ -1032,3 +1032,98 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
         -   The malicious_open function runs some harmful code (e.g., logging sensitive file access, hiding specific files, or injecting malicious actions).
         -   After performing its malicious tasks, it restores the original 7 bytes of syscall_open to cover its tracks.
         -   Finally, it calls the original syscall_open function to ensure the system behaves as expected, so the user or system doesn't notice anything unusual
+
+## Operating System Security 2
+
+### Protection Strategies
+
+-   An important security strategy in OS protection
+    -   When some component in the system is compromised or malicious, need to prevent it from harming rest of the system
+    -   Confinement restricts the impact of each component on others
+    -   Follows the principle of least of privilege
+    -   Can be implemented at different levels
+
+#### OS Level Confinement — Virtual Machine
+
+-   Virtualization is the fundemental technology for cloud computing
+    -   Ability for different OS (VM) run on same machine
+    -   Each virtual machine has an independent OS, logically isolated from others
+-   For software layer, hypervisor is used for virtualizing and managing underlying resources and enforce isolation
+-   For hardware layer, hardware virtualization extensions (Intel VT-x, AMD-V) for accelerating virtualization and improving performance
+-   Malware can be deployed onto VM to observe its behaviour
+    -   Malware cannot cause damage outside of VM and thus not compromise the entire OS
+    -   Malware behaviour can be observed from hypervisor
+-   Limitations of virtualization
+    -   Hypervisor introduces a large attack surface
+        -   Hypervisor has big code base and inevitably brings more software bugs
+        -   Hypervisor has higher privilege than OS kernel, if compromised, attacker can take control of entire system more easily
+    -   Performance of VM could be affected by other VMs due to sharing of hardware resources
+-   Challenges of virtualization
+    -   Semantic gaps are present between high-level activties inside VMs and observed low-level behaviours
+    -   **Not compatitable with Trusted Execution Environment (TEE)**
+    -   Smart malware can detect that its running inside VM and not the actual environment intended for, thus behaving like normal application
+
+#### Process Level Confinement — Container
+
+-   Container is a standard unit of software that is lightweight, standalone, executable software package has everything eeded to run the application
+    -   Code, system tools, libraries, configuration
+-   Docker is commonyl used to manage containers
+-   Advantages
+    -   Portable, can run consistently across different environemnts, reducing compatability issues
+    -   Efficiency, shraring OS reduces overhead with high resource utilization
+    -   Isolation, applications operate in their own environment, minimizing conflicts and enhancing security
+
+#### Reference Monitor
+
+-   A concpetual framework that enforces access control policies over any protected target in a system
+-   Meidates all access requests and deny any request that violates policy
+-   Trusted Computer System Evaluation Criteria (TCSEC) emphasizes the need of a reference monitor in acheiving higher security
+-   RM serve as foundation for various security models ensuring access control policies are consistently enforced across system
+-   Requirements of RM
+    -   Functional
+        -   RM must intercept and evaluate every access request without exception
+        -   RM is able to deny malicious requests
+    -   Security
+        -   RM must be tamper-proof and protected from unauthorized modification to maintain integrity
+    -   Assurance
+        -   Validation mechanism must be small enough to be thoroughly analyzed and tested for correctness
+
+#### OS-based RM
+
+-   Core component within OS kernel
+-   Enforces acess control policies by monitoring and mediating all system calls made by applications
+-   Ensure all applications operate within their authorized permissions, prevent unauthroized access to system reousrces
+-   Implementation
+    -   Intercepts all system calls and check permissions to allow/disallow execution
+    -   SELinux
+
+#### Application-based RM
+
+-   A security mechanism embedded within applications that enforce access control policies by providing fine-grained control over application behaviours
+-   RM with interpreter
+    -   Every operation will be checked against security policies before execution
+-   Inline RM
+    -   Inserting RM directly into application code
+
+#### Hardware-based RM
+
+-   Responsible for monitoring and regulating all software activities including OS kernel
+    -   Any operation violating security policy will throw hardware exception
+-   Conducts various checking
+    -   Memoru access management
+        -   If each memory access is within process memory rnage
+        -   If each access follows the allowed permission
+    -   Privilege mode mangement
+        -   At any time, CPU can be in either user or kernel
+        -   Privilege instructions can only be used in kernel mode
+        -   Context switch is required for user mode to call privileged functions
+
+#### Network-based RM
+
+-   Firewall is used to monitor and regulate network traffic based on security policy
+    -   Outbound defines what traffic is allowed to exit network
+    -   Inbound defines what traffic is allowed to enter network
+-   Possible actions
+    -   Allow
+    -   Deny
+    -   Alert

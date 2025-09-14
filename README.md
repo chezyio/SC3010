@@ -1127,3 +1127,167 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
     -   Allow
     -   Deny
     -   Alert
+
+### Hardware-assisted Protection
+
+#### Basic Functionalities
+
+-   Software is not always trusted
+    -   Privileged software usually has very large code base which inevitably contains lots of vulnerabilities
+    -   Once it is compromised, attacker can run anything to any apps
+-   Hardware is more reliable
+    -   After chip is fabricated, it is hard for attacker to modify it, integrity of chip is guaranteed
+    -   Very hard for attacker to peek into the chip to steal secret, confidentiality guaranteed
+    -   More reliable to introduce security-aware hardware to protect OS and applications
+
+#### Encryption
+
+-   Dedictaed hardware
+    -   Trusted Platform Module (TPM)
+    -   Hardware Security Module (HSM)
+    -   Advanced Encryption Standard New Instructions (AES-NI)
+-   Benefits
+    -   Performance effiiciency that brings faster execution with optimized hardware
+    -   Energy efficiency that lowers power consumption compared to software solutions
+    -   Resistant to software-level attacks and malware
+    -   Ease of use by having transparent encryption with minimal user interaction
+
+#### Remote Attestation
+
+-   Mechanism that allows a user to know if the app executes securely on a trusted platform
+    -   Remote platform provides unforgeable evidence about the security of its software to a client
+    -   Common strategy to prove software running on platform are intact and trustworthy
+-   Components
+    -   Integrity measurement architecture for providing reliable and trustworthy security report
+    -   Remote attestation protocol ensuring the attestation report is transmitted to the client without being modified by attackers in OS, application or network
+
+#### Trusted Platform Module
+
+-   **A chip that is integrated into the platform and has a separated co-processir**
+    -   Contains random number and key generators
+    -   Crypto execution engine with different set of crypto keys
+-   State cannot be compromised by malicious host system
+-   Designed by Trusted Computing Group (TCG)
+    -   First version TPM 1.1b released in 2003
+    -   TPM 1.2 was equipped in PCs (2006) and servers (2008)
+    -   Standardized by ISO and IEC in 2009
+    -   Upgraded version TPM 2.0 released in 204
+-   Application of TPM
+    -   Intel Trusted Execution Technology (TXT)
+    -   Microsoft Next-Generation Secure Computing Base (NGSCB)
+    -   **Windows 11 requires TPM 2.0 as minimal system requirement**
+    -   Linux kernel starts to support TPM 2.0 since version 3.20
+    -   Google includes TPM in chromebooks
+    -   VMware, Xen, KVM all support virtualized TPM
+
+#### Building Chain of Trust using TPM
+
+-   **Chain of trust establishes verified systems from bottom to top**
+-   From a hierarchic view, a computer system is a layered system
+    -   Lower layers have higher privileges and can protect upper layers
+    -   Each layer is vulenrable to attacks from below if lower layer is not secured properly
+-   **TPM serves as a root of trust that establishes secure boot process and continues until OS has fully booted and apps are running**
+    -   Bottom layer validates the integrity of top layer
+    -   Safe to launch top layer omly when verification passes
+-   Potential applications
+    -   Digital right management
+    -   Enforcement of software licenses
+    -   Prevention of cheating in games
+-   Integrity verification
+    -   Only launches the layer the that passes the integrity verification
+    -   Steps
+        -   Loads the code from memory
+        -   Compute hash value and verify signature
+        -   Launch the code code if hash value matches and signature is valid
+        -   Otherwise abort boot process
+
+#### Data Encryption with TPM
+
+-   Can perform full disk encryption
+    -   Encrypts data with key in TPM
+    -   Difficult for any attacker to steal the key that never leaves TPM
+    -   TPM can also provide platform authentication before encryption
+-   Windows BitLocker
+    -   Disk data encrypted with encryption key FVEK
+    -   FVEK is further encrypted with Storage Rook Key (SRK) in TPM
+    -   When decrypting data, BitLocker first asks TPM to verify platform integrity
+    -   Then ask its TPM to decrypt FVEK with SRK
+    -   Then BitLocker can use FVEK to decrypt data
+    -   WIth this process, data can only be decrypted on the correct platform with the correct software launched
+
+#### Remote Attestation with TPM
+
+-   Integrity measurement architecture where TPM measures hash values of each loaded software as integrity report
+-   Hash values are stored in Platform Configuration Registers (PCR) in TPM and cannot be compromised by OS or any other apps
+-   Remote attestation protocol
+    -   TPM generates an Attestation Identity Key (AIK) to sign hash values
+    -   Hash values together with AIK will be sent to client
+    -   Trusted third party, Privacy Certification Authority (PCA) is called to verify this AIK is indeed from correct platform
+    -   Client uses this AIK to verify that received hash values are authentic
+    -   By checking hash valuesm client knows it loaded software is correct
+
+#### Trusted Execution Environment (TEE)
+
+-   **Chain of trust can guarantee the integrity of secure booting but not runtime security**
+    -   Even privilege software is botted with registry verification but may still be compromised at runtime
+-   TEE introduces new hardware to protect the apps from untrusted OS or hypervisor where **only the OS or hypervisor can support execution of apps but not access data**
+-   Intel Software Guard Extensions (SGX) is a security technology that safeguards application’s data and code
+    -   Enclave is an isolated and protected region for the code and data of an application
+    -   Data in the enclave are encrypted by processor when they are stored in memory
+    -   Attempts from other apps or OS will be forbidden
+-   Application execution in an enclave
+    -   Applicaiton is diviced into trusted and untrusted parts
+    -   Untrusted part creates an enclave and puts trusted part into it
+    -   When trusted code needs execution, processor enter enclave
+    -   In encalve, only trusted code and be executed and access the data
+    -   After the code execution is done, processor exits enclave
+    -   Untrusted part continues execution
+
+#### Attestation with SGX
+
+-   Integrity measurement architecture where enclave measurement of the code, data, stack, heap, security flags, location of each page
+-   Attestation protocol where attestation key and cryptographic protocol are used
+-   Remote attestation happens when remote client attests intergrity of code in enclave
+-   Local attestation happens when multiple enclaves collaborate on the same task to exchange data at runtime, and can thus help to prove their trust
+
+#### AMD Secure Encrypted Virtualization (SEV)
+
+-   Hardware extension to protect VMs against untrusted hypervisor
+    -   SEV has basic memory encryption (2016)
+    -   SEV-ES has the ability to encrypt CPU registers (2018)
+    -   SEV-SNP adds integrity protection (2020)
+-   Mechanism
+    -   Processor encrypts data of the guest VMs so hypervisor not allowed to access
+    -   Uses an AMD secure processor to manage encryption keys
+    -   Transparent encryption with minimal modifications to VM
+
+#### AMD Secure Memory Encryption (SME)
+
+-   Vritual memory encryption is realized by SME
+    -   Perfomed via dedictaed hardware in memory controllers
+    -   Uses AES engine to encrypt data and control with C-bit in page table entry
+    -   C-bit is located at physical address bit 47
+    -   Setting C-bit to 1 indicates page is encrypted
+        -   Give users the ability to encrypt full memory or selected pages
+
+#### AMD TrustZone
+
+-   First commercial TEE processor
+-   Creates two environments that can run simultaeneously on same processor
+    -   Each world has an independent OS
+    -   Normal word runs the normal unprotected applications and has a rich OS, ahve restricted access to hardware resource in secure world
+    -   Secure world runs the sensitive protected applications and a smaller secure OS that isolates them from untrusted world, ahve full access to hardware resource in normal world
+-   Context switching
+    -   Non-secure bit in the Secure Configuration Register is used to detemine which world processor is currently running
+    -   Has a third privilege mode known as secure monitor in addition to user and kernel
+    -   When processor wants to switch world, first issues a special instruction Secure Monitor Call (SMC) to enter secure monitor mode
+    -   Then it performs cleaning works and enter other world
+
+#### Application of TEE
+
+-   Positive usage
+    -   Cloud computing where trust is not needed for cloud provider
+    -   Digital right management
+    -   Crypto and blockchain
+-   Negative usage
+    -   Adversaries leverage TEE to hide malicious activities for stealthier attacks

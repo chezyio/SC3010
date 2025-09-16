@@ -1049,6 +1049,9 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
     -   Ability for different OS (VM) run on same machine
     -   Each virtual machine has an independent OS, logically isolated from others
 -   For software layer, hypervisor is used for virtualizing and managing underlying resources and enforce isolation
+    -   This makes hypervisor more privilege than OS kernel
+    -   OS is usually privilege level 0 and hypervisor is in privilege level -1
+    -   Hypervisor must ensure logical isolation
 -   For hardware layer, hardware virtualization extensions (Intel VT-x, AMD-V) for accelerating virtualization and improving performance
 -   Malware can be deployed onto VM to observe its behaviour
     -   Malware cannot cause damage outside of VM and thus not compromise the entire OS
@@ -1072,6 +1075,7 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
     -   Portable, can run consistently across different environemnts, reducing compatability issues
     -   Efficiency, shraring OS reduces overhead with high resource utilization
     -   Isolation, applications operate in their own environment, minimizing conflicts and enhancing security
+-   Process level, OS is not being virtualized
 
 #### Reference Monitor
 
@@ -1087,6 +1091,7 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
         -   RM must be tamper-proof and protected from unauthorized modification to maintain integrity
     -   Assurance
         -   Validation mechanism must be small enough to be thoroughly analyzed and tested for correctness
+-   Access control policies can be secured with the use of RM to enforce the policies
 
 #### OS-based RM
 
@@ -1136,6 +1141,7 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
     -   Privileged software usually has very large code base which inevitably contains lots of vulnerabilities
     -   Once it is compromised, attacker can run anything to any apps
 -   Hardware is more reliable
+    -   More privileged
     -   After chip is fabricated, it is hard for attacker to modify it, integrity of chip is guaranteed
     -   Very hard for attacker to peek into the chip to steal secret, confidentiality guaranteed
     -   More reliable to introduce security-aware hardware to protect OS and applications
@@ -1163,7 +1169,7 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
 
 #### Trusted Platform Module
 
--   **A chip that is integrated into the platform and has a separated co-processir**
+-   **A chip that is integrated into the platform and has a separated co-processor**
     -   Contains random number and key generators
     -   Crypto execution engine with different set of crypto keys
 -   State cannot be compromised by malicious host system
@@ -1188,6 +1194,7 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
     -   Each layer is vulenrable to attacks from below if lower layer is not secured properly
 -   **TPM serves as a root of trust that establishes secure boot process and continues until OS has fully booted and apps are running**
     -   Bottom layer validates the integrity of top layer
+        -   Bottom layer protects top layer
     -   Safe to launch top layer omly when verification passes
 -   Potential applications
     -   Digital right management
@@ -1198,6 +1205,8 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
     -   Steps
         -   Loads the code from memory
         -   Compute hash value and verify signature
+            -   Hash values checks that content or binary is unchanged
+            -   Signature ensures that is from a trusted source
         -   Launch the code code if hash value matches and signature is valid
         -   Otherwise abort boot process
 
@@ -1210,6 +1219,7 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
 -   Windows BitLocker
     -   Disk data encrypted with encryption key FVEK
     -   FVEK is further encrypted with Storage Rook Key (SRK) in TPM
+            - SRK is fixed in the TPM will never be known to others
     -   When decrypting data, BitLocker first asks TPM to verify platform integrity
     -   Then ask its TPM to decrypt FVEK with SRK
     -   Then BitLocker can use FVEK to decrypt data
@@ -1266,6 +1276,8 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
 -   Vritual memory encryption is realized by SME
     -   Perfomed via dedictaed hardware in memory controllers
     -   Uses AES engine to encrypt data and control with C-bit in page table entry
+        - If C-bit is enabled, then proceed to encrypt data before storing into memory
+        - If C-bit is disabled, then proceed to store in memory as no protection is required
     -   C-bit is located at physical address bit 47
     -   Setting C-bit to 1 indicates page is encrypted
         -   Give users the ability to encrypt full memory or selected pages

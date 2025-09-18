@@ -610,7 +610,7 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
 -   Analayze source code or binary before running it during compilation
     -   Explore all possible execution consequences with all possible input
     -   Approximate possible states
-    -   Identify issues during development and reduces cost of fixing vulenrability
+    -   Identify issues during development and reduces cost of fixing vulnerability
     -   Relies on predefined rules or policies to identify patterns of insecure coding practice
 -   Limations
     -   May produce false positives requring manual review
@@ -637,7 +637,7 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
     -   Examine failures to determine if they represent exploitable vulneratbilites
 -   Limitations
     -   Limited code coverage
-    -   Require expert analysis to assess whether system crashes are explitable
+    -   Require expert analysis to assess whether system crashes are exploitable
     -   May miss logic flaws that do not result in crashes
 -   Types of fuzzing
     -   Mutation-based

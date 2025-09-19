@@ -916,15 +916,15 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
 -   Superuser privilege is required to execute certain OS functions
     -   Example
         -   Password changing
-        -   User passwords are stored in file /etc/shadow
+        -   User passwords are stored in file `/etc/shadow`
         -   FIle is owned by root superuser where a normal usr has no access to it
-        -   When a normal user wants to change password with program passwd, program needs to give additional permisions to write to /etc/shadow
+        -   When a normal user wants to change password with program passwd, program needs to give additional permisions to write to `/etc/shadow`
     -   SUID is a special permission flag for a program
         -   Allows a program to run with the permissions of its owner, rather than the user executing it
         -   When set on an executable file, the program runs as if launched by the file's owner, granting access to resources or actions the owner is authorized for, even if the user running it has lower privileges
-        -   /bin/login, bin/at, /bin/su are some SUID programs
+        -   `/bin/login`, `/bin/at`, `/bin/su` are some SUID programs
 -   Potential dangers
-    -   As the user has the program owner’s privileges when running a SUID program , program should only do what the owner intended
+    -   As the user has the program owner’s privileges when running a SUID program, program should only do what the owner intended
     -   By tricking a SUID program owned by root to do unintended things, an attacker can act as the root
 -   Security considerations
     -   All user input must be processed with extreme care

@@ -8,6 +8,7 @@
 -   Software Security 2
 -   Software Security 3
 -   Operating System Security 1
+-   Operating System Security 2
 
 ## Introduction
 
@@ -272,7 +273,7 @@ TBC
 
 -   `printf` in C prints a format string to the screen
     -   Format string is a string with special format specifiers (escape sequences prefixed with %)
-    -   Can take more than one argument where first argument is the format string and the rest consists of values to ve substituted
+    -   Can take more than one argument where first argument is the format string and the rest consists of values to be substituted
     -   Examples
         -   printf(”Hello, world”)
         -   printf(”Year %d”, 2014)
@@ -319,7 +320,7 @@ printf(“x value: %d, y value: %d, z value: %d”, x, y);
 
 -   For correct function,
     -   Prints three variables (x, y, z) correctly
-    -   `%d` format specifiers tell printf to expect three integer values, which are provided as x, y, and z
+    -   `%d` format specifiers tell printf to expect three integer values, which are provided as x, y and z
 -   For incorrect function,
     -   `printf` expects three integers (because of three %d specifiers), but only two (x and y) are provided
     -   Stack doesn't know an argument is missing, so printf grabs whatever random data is next on the stack as the third value
@@ -358,7 +359,7 @@ printf("13579%n")
 
 -   For correct function,
     -   Format string `13579%n` tells `printf` to print `13579` (5 characters)
-    -   Use `%n` to store the number of characters printed so far (5) into the memory address provided as an argument\
+    -   Use `%n` to store the number of characters printed so far (5) into the memory address provided as an argument
     -   `&i` is the address of an integer variable `i`, passed as an argument and pushed onto the stack
     -   `printf` writes the number 5 (the count of characters printed) to the memory address `&i`, so `i` becomes 5
 -   For incorrect function,
@@ -373,7 +374,7 @@ printf("13579%n")
 -   Limit the ability of attackers to control format strings
     -   Hard-coding format strings (use `printf("%s\n", user_input)` instead of `printf(user_input)`)
     -   Do not use `%n`
-    -   Compiler suppirt to match `printf` arguments with format strings
+    -   Compiler support to match `printf` arguments with format strings
 
 ### Integer Overflow Vulnerabilities
 
@@ -424,10 +425,10 @@ printf("13579%n")
 
 ### Scripting Vulneralbilities
 
--   Scirpting languag is used to
+-   Scripting language is used to
     -   Construct commands from predefined code fragments and user input at runtime
     -   Script is then passed to another software component where it is executed
-    -   Domain-specific language is used for a particular environemnt
+    -   Domain-specific language is used for a particular environment
 -   Vulnerabilities
     -   Additional commands can be hidden in the user input
     -   System will execute malicious command without any awareness
@@ -509,7 +510,7 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
 ##### Defenses against Cross Site Scripting
 
 -   Use Content Security Policy (CSP)
-    -   Instruct browser to only use resources loaded form specific places
+    -   Instruct browser to only use resources loaded from specific places
     -   Policies are enforced by browser
         -   Disallow all inline scripts
         -   Only allowing scripts from specific domains
@@ -613,7 +614,7 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
     -   Identify issues during development and reduces cost of fixing vulnerability
     -   Relies on predefined rules or policies to identify patterns of insecure coding practice
 -   Limations
-    -   May produce false positives requring manual review
+    -   May produce false positives requiring manual review
     -   Cannot detect runtime issues
 
 #### Dynamic Analysis — Penetration Testing
@@ -1218,8 +1219,7 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
     -   TPM can also provide platform authentication before encryption
 -   Windows BitLocker
     -   Disk data encrypted with encryption key FVEK
-    -   FVEK is further encrypted with Storage Rook Key (SRK) in TPM
-            - SRK is fixed in the TPM will never be known to others
+    -   FVEK is further encrypted with Storage Rook Key (SRK) in TPM - SRK is fixed in the TPM will never be known to others
     -   When decrypting data, BitLocker first asks TPM to verify platform integrity
     -   Then ask its TPM to decrypt FVEK with SRK
     -   Then BitLocker can use FVEK to decrypt data
@@ -1276,8 +1276,8 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
 -   Vritual memory encryption is realized by SME
     -   Perfomed via dedictaed hardware in memory controllers
     -   Uses AES engine to encrypt data and control with C-bit in page table entry
-        - If C-bit is enabled, then proceed to encrypt data before storing into memory
-        - If C-bit is disabled, then proceed to store in memory as no protection is required
+        -   If C-bit is enabled, then proceed to encrypt data before storing into memory
+        -   If C-bit is disabled, then proceed to store in memory as no protection is required
     -   C-bit is located at physical address bit 47
     -   Setting C-bit to 1 indicates page is encrypted
         -   Give users the ability to encrypt full memory or selected pages

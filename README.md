@@ -10,6 +10,7 @@
 -   Operating System Security 1
 -   Operating System Security 2
 -   SingHealth Data Breach
+-   Authentication and Passwords
 
 ## Introduction
 

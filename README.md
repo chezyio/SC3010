@@ -1304,3 +1304,300 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
     -   Crypto and blockchain
 -   Negative usage
     -   Adversaries leverage TEE to hide malicious activities for stealthier attacks
+
+## SingHealth Data Breach
+
+### Overview
+
+-   Between 23/8/17 and 20/7/18, cyberattack of unprecendeted scale and sophistication was carried on SingHealth patient database
+-   Database was illegally accessed and personal particulars of 1.5 million patients, including names, NRIC numbers, addresses and dates of birth were exfiltrated over period of 27/6/18 to 4/7/18
+-   Around 159000 of these 1.5 million patients also had their outpatient dispensed medication records exfiltrated
+-   **PM Lee personal and outpatient medication data was specifically targeted and repeatedly access**
+-   Crown jewels of SingHealth network are the patient Electronic Medical Records (EMR) contained in SingHealth “SCM” database
+-   SCM is an EMR software solution that allows healthcare staff to access real-time patient data
+-   Can be seen as comprising front-end workstations, Citrix servers and SCM database
+-   Users would access SCM database via Citrix servers which operate as intermediary between front-end workstations and SCM database
+    -   Citrix servers played a critical role in cyberattack
+-   At the time of attack, SingHealth owns the SCM system
+-   IHiS was reponsible for administering and operating the system including implementing cybersecurity measures
+    -   Responsible for security incident response and reporting
+
+### Stages
+
+#### Stage 1
+
+-   Attacker gained initial access to SingHealth’s IT network around 23/8/17, infecting front-end workstations most likely through phishing attacks
+-   Attacker then lay dormant for 4 months, before commencing lateral movement for 6 months between December 2017 and June 2018, compomising many endpoints and severs including the Citrix servers located in SGH which were connected to the SCM database
+-   Along the way, attacker also compromised a large number of user and administrator accounts
+
+#### Stage 2
+
+-   Starting from May 2018, attacker made use of compromised user workstations in SingHealth IT network and suspected VMs to remotely connect to SGH Citrix servers
+-   Attacker initially unsuccessful to access SCM database from SGH citrix servers
+
+#### Stage 3
+
+-   **IHiS IT administrator first noticed unauthorised logins to Citrix servers and failed attempts at accessing SCM database on 11 June 2018**
+-   **On 27 June 2018, attacker began querying SCM database, stealing and exfiltrating patient records and undetected by IHiS**
+
+#### Stage 4
+
+-   1 week later, on 4 July 2018, an IHiS administrator for the SCM system noticed suspicious queries being made on the SCM database
+-   Working with others, ongoing suspicious queries were terminated and measures were put in place to prevent further queries to SCM database
+-   Measures were successful and no further successful queries were made after 4 July 2018
+
+#### Stage 5
+
+-   Between 11 June and 9 July 2018, only IHiS line staff and middle management from various teams were aware
+-   After 1 month on 9 July 2018, IHiS senior management were finally informed on this attack
+-   3 days later on 10 July 2018, matter was escalated to Cyber Security Agency (CSA), SingHealth’s senior management, MOH and MOHH
+
+#### Stage 6
+
+-   Starting from 10 July 2018, IHiS and CSA carried out joint investigations and remediation
+-   Several measures aimed at containing
+    -   Existing threat
+    -   Eliminating attacker’s footholds
+    -   Preventing recurrence of attack
+-   In view of further malicious activities on 19 July 2018, internet surfing separation was implemented for SingHealth on 20 July 2018
+    -   No further suspicious activity after
+
+#### Stage 7
+
+-   Public annoucement was made on 20 July 2018
+-   Patient outreach and communications commenced immediately thereafter
+-   SMS were used for mass dissemination
+-   COI committee has identified 5 key findings
+-   COI committee has identified 5 key findings
+
+### Key Findings
+
+#### Inadequate Levels of Cybersecurity
+
+-   IHiS staff did not have adequate levels of cybersecurity, training and resources
+    -   Difficult for staff to appreciate security implications of their findings
+    -   Cannot respond effectively
+
+#### Lack of Ownership
+
+-   Certain IHiS staff holding key roles in IT security incident response and reporting failed to take appropirate, effective or timely action
+-   Resulted in missed opportunities to prevent stealing and exfiltrating of data
+
+#### Vulnerabilities, Weaknesses and Misconfigurations
+
+-   Number of vulnerabilities, weaknesses and misconfigurations in SingHeatlh network and SCM system that contributed to attacker’s success
+-   Many could hvae been remedied before attack
+
+#### Skilled and Sophisticated Actor
+
+-   Bears the characteristics of an advanced persistent threat group that is skilled and sophistictaed
+-   Attacker had a clear goal in mind, namely the personal data and outpatient medication data of PM primarily and other patients
+-   Attacker employed advanced tools, techniques and procedures (TTP) as seen from the suite of advanced, customised and stealthy malware used
+    -   Generally stealthy movements
+    -   Ability to find and exploit various vulnerabilities in SingHealth IT network and SCM application
+-   Attacker was persistent, having established multiple footholds and backdoors, carried out its attack over 10 months and made multiple attempts at accessing SCM database using various methods
+-   Attacker was from a well-resourced group that has extensive command and control network with the capability to develop numerous customised tools, and wide range of technical expertise
+
+#### Cyber Defences Will Never Be Impregnable
+
+-   Difficult to prevent advanced persistent threat from breaching perimeter of network
+-   Success of attacker in obtaining and exfiltrating data was not inevitable
+
+### Cyber Kill Chain Framework
+
+-   7 steps framework developed by Lockheed Martin
+-   Identifies what adversaries must complete in order to achieve their objective
+    -   Starting from early reconnaissance to final goal of data exfiltration
+-   Facilitate understanding of the actions, tactics, techniques and procedures of attacker
+-   7 steps
+    -   Reconnaissance
+    -   Weaponization
+    -   Delivery
+    -   Exploitation
+    -   Installation
+    -   Command and Control
+    -   Actions on Objectives
+
+#### First Evidence of Breach and Establishing Control
+
+-   Forensic investigations uncovered signs of callbacks to overseas command and control server from 23 Auguest 2017
+    -   Callbacks are communications between malware and server to either fetch updates and instructions or send back stolen information
+-   CSA discovered many malicious artifacts in workstation A
+    -   A log file which was remnant of a malware set
+        -   Log file was a remnant file from a known malware which has password dumping capability
+        -   Created on workstation A on 29 Auguest 2017 that contains password credentials in plaintext that appeared to belogn to user of workstation A
+        -   Malware was likely to have been used attacker to obtain passwords for privilege escalation and lateral movement
+    -   Publicly available hacking tool
+        -   Enables attacker to maintain persistent presence once an email account has been breached even if password is subsequently changed
+        -   Interact remotely with mail exchange servers
+        -   Perform simple brute force attacks on user’s email account password
+        -   Serve as hidden backdoor for attacker to regain entry into system in the event initial implants are removed
+        -   **Installed on workstation A on 1 Dec 2017 by exploiting a vulnerability in the version of Outlook that was installed on workstation A**
+        -   **Although patch was available at that time, it was not installed then**
+        -   Hacking tool was thus successfully installed and was used to download malicious files onto workstation A
+            -   **Some of these files were masqueraded as .jpg image files but in fact contained malicious PowerShell scripts, one of which is thought to be a modified PowerShell script taken from open source post-exploitation tool**
+    -   Customised remote access trojan referred to as “RAT 1”
+        -   RAT 1 provided attacker with capability to access and control workstation A enabling attacker to perform functions such as executing shell scripts remotely and uploading and downloading files
+-   Introduction of hacking tool and RAT 1 in Dec 2017 allowed the attacker to gain capability to execute shell scripts remotely as well as upload and download files to workstation A
+    -   Attacker was able to go through delivery, exploitation, installation, command and control phases by 1 Dec 2017
+
+#### Privilege Escalation and Lateral Movement
+
+-   Happened from December 2017 to June 2018
+-   After attacker established an initial foothold in workstation A, it moved laterally in network between December 2017 and June 2018
+    -   Compromising a number of endpoints and servers
+    -   Including Citrix servers located in SGH which were connected to SCM database
+-   Evidence of attacker’s lateral movement was found in proliferation of malware across endpoints and servers
+    -   **Malware samples found and analysed by CSA were either tools that were stealthy by deisgn or unique varients not seen in the wild and not detected by standard anti-malware solutions**
+    -   Malware included RAT 1 and another “RAT 2”
+-   Evidence of PowerShell commands used by attacker to distribute malware to infect other machines and other of malicious files being copied between machines over mapped network drives
+-   **CSA also assessed that attacker is likely to have compomised Windows authentication system and obtain administrator and user credentials**
+    -   Allows attacker to gain full control over all Windows based servers and hosted applications and all employee workstations, underlying data within domain
+-   Established control over workstation B on 17 April 2018
+    -   Attacker gain access to workstation B (SGH) and planted RAT 2
+    -   Workstation B has access to SCM application
+    -   Used to log in remotely to SGH Citrix servers 1 and 2
+
+#### Queries to SCM Database
+
+-   Happened from 26 June 2018 to 4 July 2018
+-   AA account was used to query database from Citrix server 2
+-   3 types of queries ran
+    -   Reconnaissance on schema of SCM database
+    -   Direct queries relating to particular individuals
+    -   Bulk queries on patients
+-   Information from SQL queries
+    -   PM Lee personal and outpatient medication data
+    -   Demographic records of 1.5 million patients including names, NRIC, address, gender, race and dates of birth
+    -   Outpatient dispensed medication records of about 159k of 1.5 million patients
+-   Copying and exfiltration of data from SCM database was stopped on 4 July 2018 after staff from IHiS discovered unusal queries and took steps to prevent further querying
+
+#### Attempts to Re-enter SingHealth Network
+
+-   Happened on 18 and 19 July 2018
+-   After detection of malware on communications from server, CSA recommended internet surfing separation should be implemented to prevent attacker from exercising command and control over remaining footholds
+-   **Internet surfing separation implemented on 20 July 2018**
+-   No further signs deteceted thereafter
+
+### Contributing Factors Leading to Attack
+
+#### Network Connections between SGH Citrix Servers and SCM Database
+
+-   Connection were allowed
+-   **Open connection is not necessary**
+    -   Need to reduce attack surface area
+-   Basic security review of network architecture and connectivity between SGH Citrix servers and SCM database could have shown that open network connection created a security vulnerability
+    -   But no review was carried out
+-   **Lesson: get rid of unncessary connection**
+
+#### Lack of Monitoring at SCM Database for Unusual Queries
+
+-   From 26 June to 4 July 2018, attacker ran queries on SCM database including bulk queries undetected
+-   Lack of monitoring of SCM database
+    -   No existing controls to detect bulk queries
+    -   No control place at the time of attack to detect of block any queries to SCM database made using illegitimate applications
+-   Database Activity Monitoring (DAM) solutiosn were available on the market that can address some or all gaps
+    -   **DAM not implemented by IHiS at the time of attack**
+
+#### SGH Citrix Servers Not Adequately Secure Against Unauthorised Access
+
+-   Privilege Access Management was not the exclusive means for accessing for accessing SGH Citrix servers
+-   Login to servers by other means without 2FA were possible
+-   **IHiS Citrix administrators were aware of this but made use of this for convenience**
+-   **Lack of firewalls to prevent unauthorised remote access using RDP to SGH Citrix servers**
+-   SGH Citrix servers were not treated as mission critical unlike SCM databse
+    -   Not monitored for real-time analysis and alerts of vulneratbilites and issues arising
+    -   Vulnerability scanning not carried out for SGH Citrix servers but only for mission critical systems
+
+#### Internet Connectivity in SingHealth IT Network Increased Attack Surface
+
+-   Connection to internet while serving operational needs created an evenue of entry and exit for attacker
+-   Allowed attacker to make use of internet-connected workstation (workstation A) to gain entry to the network before making its way to SCM database to steal data
+-   Security risks from internet-connectivity were raised by CSA to MOH as early as August 2015
+-   By June 2017, healthcare sector determined that
+    -   Internet access would be removed for staff that did not require internet for work
+    -   For those required, access would be through a secure internet access platform which was to take the form of a “remote browser”
+
+#### Versions of Outlook used by IHiS Not Patched
+
+-   Publicly available hacking tool can compromise Outlook
+-   Attacker was able to install the tool on workstation A by exploting the vulnerability in version of Outlook that was installed on workstation
+-   Patch was effective in preventing vulnerability from being exploited and available in late 2017
+-   **Clear need to improve software upgrade policies**
+
+#### Extensive Command and Control Infrastructure
+
+-   CSA forensic analysis revelaed a number of network Indicators of Compromise (IOC) which appeared to be overseas command and control servers
+-   Used for
+    -   Infection where server is used as means of dropping malware into system it is trying to infect
+    -   Data exfiltration where inidications of technical data being sent
+    -   Beacon where infected machines may have connected to servers to establish a heartbeat which refers to slow and rhythmic communcation mean to just sustain connections
+
+### Actions of COI
+
+-   Made 16 recommendations, 7 of which are priority to be implemented immediately
+
+#### Enhanced Security Structure and Readiness
+
+-   Cybersecurity must be viewed as risk management issue and not technical issue
+    -   Decisions must be deliberated at appropriate management level to balance trade-offs between security, operational requirements and cost
+-   IHiS must adopt a defence in depth approach
+-   Gaps between policy and practice must be addressed
+
+#### Cyber stack Must be Reviewed
+
+-   Identify gaps in cyber stack by mapping layers of IT stack against existing security technologies
+-   Gaps in response technologies must be filled by acuqring endpoint and network forensics capabiltiies
+-   Effectiveness of current endpoint security measures must be reviewed to fill gaps exploited by attacker
+-   Network security must be enhanced to disrupt command and control and actions on objective phases of Cyber Kill Chain
+-   Application security for email must be heightened
+
+#### Staff Awareness on Cybersecurity must be Improved
+
+-   Level of cyber hygiene among users must continue to be improved
+-   Security awareness programme should be implemented to reduce organisational risk
+-   IT staff must be equipped with sufficient knowledge to recognise signs of security incident
+
+#### Enhanced Security Checks must be Performed on Command and Control Systems
+
+-   Vulnerability assessments must be conducted regularly
+-   Safety reviews, evaluation and certifcation of vendor products must be carried out where feasible
+-   Penetration testing must be conducted regularly
+-   Red teaming should be carried out periodically
+-   Threat hunting must be considered
+
+#### Privileged Administrator Accounts must be Subject to Tigheter Control and Greater Monitoring
+
+-   An inventory of adminstrative accounts should be created to faciliate rationalisation of such accounts
+-   All administrators must use 2FA when performing adminstrative tasks
+-   Use of passphrases instead of passwords should be considered to reduce risk of acocunts being compromised
+-   Password policies must be implemented and enforced across both local and domain accounts
+-   Server local administrator accounts must be centrally managed across IT network
+-   Service accounts with high privileges must be managed and controlled
+
+#### Incident Response Process must be Improved for More Effective Response
+
+-   Ensure response plans are effective and must be tested regularly
+-   Pre-defined modes of communications must be used during incident response
+-   Correct balance msut be struck between containment, remediation and eradication
+-   Information and data necessary to investigate an incident must be readily available
+-   Cyber defence centre should be established
+
+#### Partnerships betwen Industry and Government
+
+-   Threat intelligence sharing should be enhanced
+-   Partnerships with ISPs should be strengthened
+-   Defence beynd borders where cross-border and cross-sector partnerships should be strengthened
+-   Using a network to defend a network by applying behavioural analytics for collective defence
+
+#### Additional Recommendations
+
+-   IT security risk assessments and audit processes must be treated seriosuly and carried out regularly
+-   Enhanced safeguards must be put in place to protect EMR
+-   Domain controllers must be secured against attack
+-   Robust patch management process must be implemented to address security vulnerabilities
+-   Software update policy with focus on security must be implemented to increase cyber resilience
+-   Internet access strategy that minimises exposure to external threats should be implemented
+-   Incident response plans must be more clearly state when and how security indicent is to be reported
+-   Competence of computer security incident response personnel must be significantly improved
+-   A post-breach independent forensic review of network, endpoins and SCM system should be considered

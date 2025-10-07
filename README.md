@@ -1602,3 +1602,23 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
 -   Incident response plans must be more clearly state when and how security indicent is to be reported
 -   Competence of computer security incident response personnel must be significantly improved
 -   A post-breach independent forensic review of network, endpoins and SCM system should be considered
+
+
+## Authentication and Passwords
+
+### Key Concepts
+
+-   Authentication is the act of verifying someone’s identify and especially important in cyberspace
+-   Authorization is the act of checking whether a user has permission to conduct some action
+-   Confidentiality is to keep contents of a transient communication or data on temporary or persistent storage secret
+-   Message/data integrity states that no third party is able to modify contents of messages exchanged between entities
+-   Accountability is to ensure that you are able to determine who the attacker or principal is in the case that some goes wrong or an erroneous transaction is identified
+-   Available system is one that can respond to users’ request in a reasonable timeframe
+-   Non-repudiation is to ensure undeniability of a transaction by any of the parties invovled
+
+### Authentication
+
+-   Identity can be verified using one or more of these methods
+    -   Something you know
+    -   Something you have
+    -   Something you are

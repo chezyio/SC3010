@@ -1622,3 +1622,91 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
     -   Something you know
     -   Something you have
     -   Something you are
+
+
+#### Something You Know
+
+-   Generally passwords
+    -   Prevalently used
+-   Password is a secret that only a person will know
+    -   If the person produces the right passsword, then it can prove one’s identity
+-   Advantages
+    -   Password schemes simple to implement compared to other authentication mechanisms such as biometrics
+    -   Simple for users to understand
+-   Disadvantages
+    -   Most users don’t choose strong passwords
+        -   Users usually choose passwords that are simple concatenations of their common names, dictionary words, street names or easy to guess terms
+        -   User needs to reuse a password each time a login occurs, giving attackers numerous opportunities to snoop
+            -   OTP system forces user to enter a new password for every log in and eliminates the risks of using a password multiple times
+-   From a hacker’s perspective
+    -   Hackers don’t go to applications and try combinations
+    -   Instead, hackers commonly sniff and extract the “password hash” over internet as user log in
+        -   System normally use commond standard hash function
+    -   Hackers will write or use a password cracking program with a dictionary of common passwords and crack the passwords offline
+    -   Hackers usually have a database of password hashes and the password hash of the user appears in the database, the user’s identity is compromised
+    -   Attackers interested in hacking into somebody’s account can use password-cracking pograms to try mang common login names and concetanation of common words as passwords
+        -   Such programs can easily determine 10 to 20 oercent of usernames and passwords in a system
+    -   Passwords are relatively easy to crack unless users are forced to choose passwords that are hard for such programs to guess
+
+#### Something you Have
+
+-   Generally OTP cards, smart cards, ATM cards, tokens
+-   OTP products generate a password each time a user log in
+-   SecurID card by RSA security is one such product
+    -   Device that flashes a new password to user periodically every 60 seconds
+    -   When user wants to log in to computer system, number on card must be entered when prompted by server
+    -   Server knows the algorithm that SecurID uses to generate passwords and can verify password that user enters
+-   New generation of smart cards are physically tamper resistant, if someone tries to open the card or gain access to the information, circuit within card will self-destruct
+    -   Microprocessor, memory and other components within the smart card are epoxied together such that there is no easy way to take the card apart
+    -   Smart card issues challenge to the reader and user is required to enter a pin into the reader which then computes a response to the challenge
+    -   If smart card receives correct response, user is considered authenticated and access to use the secret information on the smart card is granted
+    -   **One problem with using smart cards for authentication is that smart card reader must be trusted**
+    -   A rouge smart card reader that is installed by attackers can record a user’s pin and if the smart card can be possessed, authentication will be successful
+    -   **Attacks against smart cards have also been engineered such as studying the power consumption as it conducted various operations and contents can be determined**
+-   ATM cards is another security mechanism based on some secret the user has
+    -   Magnetic stripe on the back stores data (user’s account number)
+    -   Data is used as part of authentication process when user wants to use ATM
+        -   Holograms and other hard to copy elements are incorportaed to prevent being copied
+
+#### Something you Are
+
+-   Generally biometrics like face and voice
+-   When using biometrics, it is important to consider effectiveness and social acceptability
+-   Palm scan
+    -   Reader measure size of person’s hand, fingers and curves that exists on palm and fingers
+    -   Also incorporates fingerprint scan on each of the fingers
+    -   More effective than simply taking a single fingerprint
+-   Iris scan
+    -   **Camera takes a picture of a person’s iris and store certain features about it in the system**
+    -   Studies show iris scans are more socially acceptable than palm scan
+    -   User is required to put their hand on reader for a few seconds while iris scan takes a quick picture
+        -   Iris scan is less intrusive than palm scan
+-   Retina scan
+    -   **Infrared light shot into user eyes and pattern of retinal blood vessels is read to create a signature stored**
+    -   User would put their head in front of a device and devices blows a puff of air and shoots a laser into the user’s eye
+-   Fingerprint
+    -   User place finger onto a reader to scan set of curves on finger
+    -   Not as socially accepted as other methods since people generally associate taking fingerprints with criminal activity
+    -   Provides less information than a palm scan
+-   Voice
+    -   System asks a user to say a particular phrase
+    -   Takes electronically encoded signals of user’s voice and compares them to databank of previous signals to determine whether there is a close rnough match
+-   Face
+    -   Facial recogntion involes a camera taking a picture of a person’s face and a computer system trying to recognize its features
+-   Signature
+    -   Signature dynamics records not only a user’s signature but also the pressure and timing at which user makes various curves and motions while signing
+        -   Signature dynamics makes is hard to replicate over simple signature
+-   Disdvantages of using biometrics
+    -   False positives
+        -   When impersonator successfully impersonates the user
+    -   False negatives
+        -   User is indeeed an authentic user of the system but biometric authentication device rejects user
+    -   Varying social acceptance
+        -   Trade-off needed where all biometric authentication techniques are less socially accepted than entering a password
+    -   Key management issues
+        -   Measurements of user biology are used to construct a key that is a unique sequence of zeros and ones that corresponds to a particular user
+        -   If attacker is able to obtain a user’s biological measurements, the attacker might be able to impersonate the user
+        -   For example, criminal may be able to copy a user’s fingerprint by re-creating it with a wax imprint that criminal puts on top of his finger
+        -   Biometrics can be thought of it as a “key” for context, if key is compromised then it cannot be revoked or changed given the biology of humans
+        -   In contrast, keys such as passwords can be revoked and changed easily if compromised
+        -   **Biometric authentication then becomes ineffective once attackers can impersonate biometric measurements**

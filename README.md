@@ -1710,3 +1710,13 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
         -   Biometrics can be thought of it as a “key” for context, if key is compromised then it cannot be revoked or changed given the biology of humans
         -   In contrast, keys such as passwords can be revoked and changed easily if compromised
         -   **Biometric authentication then becomes ineffective once attackers can impersonate biometric measurements**
+
+#### Case Study — Matsumoto Fingerprint Paper
+
+-   Biometrics are utilized in individual authentication techniques which identify individuals by checking physiological or behavioral characteeristics such as fingerprint, face, voice, iris patterns, sigantures and more
+-   Biometric systems are convenient because they need neither something to memorize such as passwords nor something to carry such as tokens
+    -   **However, user of biometric would be in trouble in biometric data is abused as they cannot be revoked or changed given the biology of humans unlike passwords**
+-   **Matsumoto states that security assessment of biometric user identification systems should be conducted not only for accuraacy of authentication but also for security againt fraud**
+-   **Therefore, biometric systems must protect information for biometrics against abuse and they must also prevent fake biometrics**
+-   Fingerprints can be cloned
+    -   **Using moulds by pressing live fingers against them or processing fingerprint images from prints on glass surface**

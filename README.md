@@ -1603,7 +1603,6 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
 -   Competence of computer security incident response personnel must be significantly improved
 -   A post-breach independent forensic review of network, endpoins and SCM system should be considered
 
-
 ## Authentication and Passwords
 
 ### Key Concepts
@@ -1622,7 +1621,6 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
     -   Something you know
     -   Something you have
     -   Something you are
-
 
 #### Something You Know
 
@@ -1720,3 +1718,25 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
 -   **Therefore, biometric systems must protect information for biometrics against abuse and they must also prevent fake biometrics**
 -   Fingerprints can be cloned
     -   **Using moulds by pressing live fingers against them or processing fingerprint images from prints on glass surface**
+
+#### Final Takeaways
+
+-   Combining various authentication techniques is more effective than using a single authentication technique
+-   Combining biometric authentication with another technqiue such as passwords or tokens makes it more effective
+-   **2FA is used to describe the case in which a user is to be authenticated upon 2 independent methods**
+    -   Like ATM cards
+        -   Something you know — account pin
+        -   Something you have — physical card with magnetic stripes containing user’s information
+-   Other factors can be taken into account when conducting authentication such as location
+    -   A user may have their phone with them that has a GPS chip
+    -   When user wants to withdraw money, the bank could ask the cellphone company system where the user is
+    -   If the response is that the location is near the ATM, then bank can approve transaction
+    -   If the ATM card and pin are compromised, then using location could help prevent a fradulent transaction
+-   Computers are also interacting with other computer on the internet and may have to authenticate themselves because not all can be trusted equally
+    -   **Many protocols that can be used to allow computer authentication and usually supports client, server and mutual authentication**
+    -   Client authentication involves server verifying the client’s identity
+    -   Server authentication involves client verifying server’s identity
+    -   Mutual authentication involves client and server verifying each other ‘s identity
+    -   TLS/SSL used in HTTPS support client, server and mutual authentication
+    -   **Whether client, server or mututal is done often depends upon nature of application**
+        -   Many e-commerce sites provide server authentication once a user is ready to make a purchase because they do not want client to submit credit card number to be spoofed

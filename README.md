@@ -1740,3 +1740,165 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
     -   TLS/SSL used in HTTPS support client, server and mutual authentication
     -   **Whether client, server or mututal is done often depends upon nature of application**
         -   Many e-commerce sites provide server authentication once a user is ready to make a purchase because they do not want client to submit credit card number to be spoofed
+
+### Passwords
+
+#### Authentication Protocol
+
+-   Weak authentication
+    -   Password-based
+    -   Unilateral where one entity proves its identity to the verifier
+    -   Prove knowledge of secret by giving up the secret
+-   Strong authentication
+    -   Involves mutual authentication where both parties take both the roles of claimant and verifier
+    -   Uses challenge-response protocols where there are sequence of steps to prove knowledge of shared secrets
+    -   Prove knowledge of secret without giving up the secret (ZK proofs)
+
+#### Password-Related Techniques
+
+-   Password should be stored in hashed value or encrypted at minimum and not plaintext
+-   Password policies define rules that are imposed on the selection of password by users, number of failed attempts and more
+-   Salting of password
+    -   Random data that is used as additional input to a one-way function that hashes a password
+    -   Salts are used to safeguard passwords in storage
+    -   **Primary function of salts is to defend against dictionary attacks**
+-   Alternative forms of passwords
+    -   Passphrases
+    -   OTP
+    -   Visual passwords
+
+#### One-way Functions
+
+-   Password storage security relies on cryptographic construct called one-way function
+-   One-way function $f$ is a function that is relatively easy to compute but hard to reverse
+    -   Given input $x$, it is easy to compute $f(x)$ but given output $y$ it is hard to find $x$ so that $y = f(x)$
+    -   Hash functions are commonly used
+    -   **Hash function $f$ takes an input of $x$ of arbitrary length and produces an output $f(x)$ of fixed length**
+    -   Popular hash functions are SHA256, SHA512, KECCAK, ARGON2, bcrypt
+
+#### Properties of Hash Functions
+
+-   Suppose $H$ is a hash function, $H$ must satisfy
+    -   Pre-image resistant if given a hash value $y$, it is computationally infeasbile to find $x$ such that $H(x) = y$
+    -   Collision resistant if it is computationally infeasible to find a pair $(x,y)$ such that $x \ne y$ and $H(x) = H(y)$
+
+#### Password Storage
+
+-   When storing passwords in plaintext
+    -   Claimant’s password is checked against database of passwords
+    -   No protections against insider or attacker who gains access to system hence dispute is possible
+-   When storing passwords in hashed or encrypted form
+    -   Claimant’s password is hashed or encrypted and checked against database of hashed or encrypted password
+    -   Offers some degree of protectiona against attacker
+-   In OS, password hashes are stored in password file
+    -   For windows, passwords are stored in Security Account Manager (SAM) file in `%windir%\system32\config\SAM`
+    -   For Unix, it is stored in `/etc/passwd` , but in modern Unix, it is stored in the shadow file `/etc/shadow`
+-   At applications level, passwords may be held temporarily in intermediate storage locations like buffers, caches or web page
+    -   Management of these storage locations is normally beyond control of user
+    -   Password may be kept longer than user has bargained for
+
+#### Attack on Passwords
+
+-   Offline guess attacks where exhaustive attacks and dictionary attacks are used
+    -   Attacker may obtain hashed passwords and attempt to guess the passwords
+    -   Plausible theat due to many incidents of stolen hashed passwords as a consequence of hacks on servers or sniffing traffic
+    -   Usage of same passwords across different accounts, compromise of one account would affect other accounts
+-   Phishing and spoofing
+
+#### Brute Force Attack
+
+-   Brute force guessing attack against password tries to guess password by enumerating all passwords and their hashes in sequence and check whether they match target hashes
+-   Measure against brute force attack is to increase space of possible passwords
+-   Password policy is an important means to increase difficulties of brute force attack
+
+#### Password Entropy
+
+<!-- ![Screenshot 2025-05-23 at 9.35.48 PM.png](attachment:d4fd8ae1-47af-4189-be94-1fb0fb174e5b:Screenshot_2025-05-23_at_9.35.48_PM.png) -->
+
+-   Measured by $2^k$
+-   Software password crackers can crack up to 16 million password per second per PC
+
+<!-- ![Screenshot 2025-05-23 at 9.41.38 PM.png](attachment:6aad5636-9253-4f0f-a964-7f9fb74c5695:Screenshot_2025-05-23_at_9.41.38_PM.png) -->
+
+<!-- ![Screenshot 2025-05-23 at 9.41.53 PM.png](attachment:4112b1f6-d340-4b8a-a3a8-bc4f4bc6a61c:Screenshot_2025-05-23_at_9.41.53_PM.png) -->
+
+#### Dictionary Attack
+
+-   **Choosing passwords with high entropy prevents brute-force attack**
+-   However, hashed passwords especially for human-generated passwords, are still vulnerable to dictionary attack
+-   Exploits weakness in human-chosen paswords, which tend to derive from words in natural languages
+-   Uses with same password will have same hash value stored in password file
+    -   Guess some commonly used passwords
+    -   Compute hash values
+    -   Look for same hash values in password file
+
+<!-- ![Screenshot 2025-05-23 at 10.56.10 PM.png](attachment:68e70f87-8e34-4222-b2fe-864962302a1b:Screenshot_2025-05-23_at_10.56.10_PM.png) -->
+
+#### Password Salting
+
+-   **Reduce the effectiveness of offline attacks using pre-computed hashes, add salt to password before applying hash function**
+-   A salt is just a random string
+-   Each password has its own salt
+-   Salt value is stored along with the $H(salt + password)$
+-   For a salt of $n$-bit, attacker needs to pre-compute $2^n$of hashes for same password
+
+#### Cheat Sheet
+
+-   Password storage
+    -   Essential to store passwords in a way that prevents them from being obtained by an attacker even if the application or database is compromised
+    -   After an attacker has acquired stored password hashes, they are always able to brute force hashes offline
+    -   As a defender, it is only possible to slow down offline attacks by selecting hash algorithms that are as resource itensive as possible
+-   Hashing vs encryption
+    -   Hashing and encryption both provide ways to keep sensitive data safe
+    -   **Passwords should be hashed, not encrypted**
+    -   Hashing is a one-way function
+    -   Hashing is appropriate for password validation
+    -   Even if attacker obtains hashed password, they cannot enter it into an application password field and log in as victim
+    -   Encryption is a two-way function, meaning that original plaintext password can be retrieved (if we have the key)
+-   Attackers cracking unsalted password hashes
+    -   Although it is not possible to unhash password hashes to obtain original pasword, it is possible to crack the hashes
+        -   Select password you think victim has chosen
+        -   Calculate hash
+        -   Compare the calculated hash against the hash of the victim
+        -   If they match, hacker would have correctly cracked the hash and now know the plaintext value of password
+-   Attackers cracking password hashes
+    -   Process is repeated for a large number of potential candidate passwords
+    -   Different methods can be used to select candidate passwords
+        -   List of passwords obtained from other compromised sites
+        -   Brute force
+        -   Dictionaries or word lists of common passwords
+    -   While number of permutations can be enormous, with high speed hardware such as GPUs and cloud services with many servers for rent, cost to an attacker is relatively small to do successful password cracking
+    -   Strong passwords stored with modern hashing algorithms and using hashing best practices should be effectively impossible for an attacker to crack
+-   Storage concept
+    -   Salt is a unique, randomly generated string that is added to each password as part of hashing process
+    -   As the salt is unique for every user, an attacker has to crack hashes once at a time using the respective salt rather than calculating a hash once and comparing it against every stored hash
+    -   Makes cracking large numbers of hashes significantly harder as the time required grows in direct proportion to number of hashes
+    -   Salting also protects against an attacker pre-computing hashes using rainbow tables or database-based lookups
+    -   Impossible to determine whether two users have the same password without cracking the hashes, as the different salts will result in different hashes even if passwords are the same
+    -   Modern hashing algorithms such as Argon2id, bcrypt and PBKDF2 automatically salt the passwords
+-   Password hashing algorithms
+    -   Modern hashing algorithms have been specifically designed for securely storing passwords
+        -   Need to be slow unlike SHA family and KECCAK which are fast
+        -   The degree of slowness can be configured by changing work factor
+        -   Work factor is how much times it is being hashed
+    -   Uses Argon2 followed by bcrypt
+-   Password policies
+    -   Set a password
+    -   Change default passwords
+    -   Avoid guessable passwords
+        -   Prescribe minimal password length
+        -   Password should be case-sensitive and alphanumeric
+    -   Password ageing
+        -   Set expiry dates to force user to change regularly
+        -   Prevent users from reverting to old passwords
+    -   Limit login attempts
+        -   System can monitor login attempts and react by locking user account after certain imposed limit
+    -   Inform user
+        -   After successful login, display time of last login and number of failed login attempts since to inform user of recently attempted attacks
+-   Protecting password file
+    -   Cryptographic protection
+    -   Access control enforced by OS
+        -   Only privileged user must have write access to password file
+        -   If read access is restricted to privileged users, then passwords in theory could be stored unencrypted
+        -   If password file contains data required by unprivileged usersm password must be encrypted
+    -   Combination fo both

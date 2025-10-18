@@ -11,6 +11,7 @@
 -   Operating System Security 2
 -   SingHealth Data Breach
 -   Authentication and Passwords
+-   Cryptography
 
 ## Introduction
 
@@ -1902,3 +1903,188 @@ SELECT * FROM client WHERE name = 'bob' OR 1=1
         -   If read access is restricted to privileged users, then passwords in theory could be stored unencrypted
         -   If password file contains data required by unprivileged usersm password must be encrypted
     -   Combination fo both
+
+## Cryptography
+
+-   Key space must be large
+-   All letters must be equally likely to happen for ciphers to be maximally secure
+
+### Introduction
+
+-   Science and math of scrambling data (using a specific method with a key) into meaningless gibberish to render data incomprehensible to eavesdropper
+-   Cryptography can be found everywhere
+    -   Cellphone calls
+    -   Microsoft office password protectioon
+    -   E-commerce with Amazon
+    -   ATM card
+    -   Smart cards
+    -   WhatsApp messages over the air
+    -   Surfing HTTPS
+
+### Crypto Terminology
+
+-   Cryptology is the art of science of making and breaking “secret codes”
+-   Cryptography is the making of “secret codes”
+-   Cryptanalysis is the breaking of “secret codes”
+-   A cipher or cryptosystem is used to encrypt the plaintext
+-   Result of encryption is ciphertext
+-   Decrypt ciphertext to recover plaintext
+-   A key is used to configure a cryptosystem
+-   A symmetric key cryptosystem uses the same key to encrypt as to decrypt
+-   A public key cryptosystem uses a public key to encrypt and a private key to decrypt
+-   Crypto as a black box
+    -   Plaintext is encrypted with a key into a ciphertext
+    -   Ciphertext can be decrypted with a key to obtain the plaintext
+
+#### Cryptanalysis
+
+-   Cryptosystem is secure if best known attack is to try all keys (brute force)
+-   Cryptosystem is broken if any shortcut attack is known without trying all keys
+-   Use of substitution succumbs to frequency analysis
+-   Main weakness is that letters used in Englush are very unevenly distributed
+-   Best not to use substitution ciphers
+
+### Caesar Cipher
+
+-   Used 2000 years ago
+-   Extremely easy to break, just shift 3 letters to left to break it
+-   Ways to make cipher harder
+    -   Use all possible shifts, 25 of them (26 alphabets)
+-   Simplest mono-alphabetic encyption
+    -   Each letter is uniquely some other other letter
+-   **Main weakness is key space too small**
+    -   Easy for computers to break as there are only 25 possible keys
+-   Size of key space - 3Ghz PC can roughly crack a key space of $2^{34}$ in 1 day - Present day minimum acceptable security is $2^{128}$
+
+    <!-- ![image.png](attachment:1a485641-3026-4c3d-b8af-395e47df5723:image.png) -->
+
+-   Uses simple substitution
+-   Key idea is to shift by 3
+-   Example
+    -   Encryption
+        -   Plaintext — fourscoreandsevenyearsago
+        -   Ciphertext — IRXUVFRUHDQGVHYHQBHDUVDJR
+    -   Decryption
+        -   Ciphertext — VSRQJHEREVTXDUHSDQWV
+        -   Plaintext — spongebobsquarepants
+-   Hardening
+    -   Instead of shifting all letters by 3 letters, can scramble the 26 letters A to Z
+    -   26! permutations
+    -   Encrypt accordingly based on scrambled key
+    -   Decrypt using same scrambled key
+-   In general, simple situation key can be any permutation of letters
+-   Don’t need to be a shift of the alphabets
+
+### Vigenere Cipher
+
+-   Took 1500 years to see a meaningful improvement of Caesar cipher
+-   Used during American civil war
+-   Similar to Caesar cipher ecept that letters are not shifted by three places but rather by values defined by a key
+    -   A collection of letters that represent numbers based on their positions in the alphabet
+-   Example
+    <!-- ![image.png](attachment:b286322a-879d-4980-8774-3365959b24d4:image.png) -->
+    -   Given a the key DUH, letters are shifted using the values 3, 20 and 7
+        -   D is 3 letters after A
+        -   U is 20 letters after A
+        -   H is 7 letters after A
+    -   The 3, 20, 7 pattern repeats until the entire plaintext is encrypted
+    -   CRYPTO would be encrypted to FLFSNV using DUH as the key
+        -   C is shfited 3 positions to F
+        -   R is shifted 20 positions to L
+        -   Y is shfited 7 positions to F
+        -   P is shifted 3 positions to S
+        -   T is shifted 20 positions to N
+        -   O is shifted 7 positions to V
+-   With this example
+    <!-- ![Screenshot 2025-05-24 at 5.42.19 PM.png](attachment:61bcae08-0b79-43ca-9776-2afdfc8f6e32:Screenshot_2025-05-24_at_5.42.19_PM.png) -->
+    -   Encryption
+        -   THEYDRINKTHETEA encrypts to
+        -   **WBL**BXYLHR**WBL**WYH
+    -   Can be seen that same letter can be mapped to different letters
+        -   E maps to L and Y
+    -   Can also see that different letters map can be mapped to a single letter
+        -   H and Y maps to B
+    -   The above scenarios are known as poly-alphabetic substitution
+-   Breaking the cipher
+    -   First step is to optain the key’s length
+    -   Notice in the ciphertext of the example above, the letters WBL appears twice at nine-letter intervals
+    -   Suggest that same 3-letter word was encrypted using the same shift values
+    -   Cryptanalyst can then deduce that the key’s length is either 9 or a value that divides 9
+    -   Furthermore, they may guess taht this repeated 3-letter word is “THE” and therefore determine DUH as a possible encryption key
+-   Not good enough for modern use
+
+### One-Time Pad
+
+-   Essentially classical ciphers cannot be secure unless it comes with a huge key, buy encrypting a huge key is impractical
+-   One-time pad is the most secure cipher and guarantees perfect secrecy
+-   Even if attacker has unlimited compute power, it’s impossible to learn anything about plaintext except for its length
+-   Takes a plaintext $P$, a random key $K$ that’s the same length as $P$ and produces ciphertext $C$, defined as $C = P \oplus K$
+    -   $C$, $P$ and $K$ are bit strings of the same length and $\oplus$ is the bitwaise XOR operator
+    -   XOR
+        -   $0 \oplus 0 = 0$
+        -   $0 \oplus 1 = 1$
+        -   $1 \oplus 0 = 1$
+        -   $1 \oplus 1 = 0$
+-   Since $C = P \oplus K$
+    -   $C \oplus K = P \oplus K \oplus K$
+    -   Simplifying to $C \oplus K = P \oplus 0 = P$
+    -   Encryption and decryption can be done just by using XOR
+    -   XOR us extremely fast, almost instantaeneous encryption and decryption
+-   Can be applied to just letters too
+    -   Need to have long random pad that is just a slong as the plaintext
+    -   Suppose plaintext is YES and random pad generated is CAB
+        -   C — shift 3 to right
+        -   A — shift 1 to right
+        -   B — shift 2 to right
+        -   Ecnrypted to BFU
+    -   Given cipher BFU and the known one time pad to be CAB, we can perform decryption by shifting left
+        -   C — shift 3 to left
+        -   A — shift 1 to left
+        -   B — shift 2 to left
+        -   Decrypted to YES
+    -   Using mod operator to find shifted letter
+        -   Encryption: <PLAINTEXT_LETTER> + <PAD_LETTER> (mod 26) returns the remainder, which is the corresponding position of the letter
+        -   Decryption: Number of correspondng letter position - <PAD_LETTER> (mod 26) returns the remainder, which is the corresponding position of the plaintext letter
+-   Summary
+    -   One-time pad is provably secure as ciphertext gives no userful information about plaintext and all plaintexts are equally likely
+    -   Conditions
+        -   Pad must be random
+        -   Pad used only once
+        -   Keep track of bits used
+        -   Pad is known only to sender and receiver
+-   Challenges
+    -   Generating truly random long one-time pad
+    -   Storing one-time pad securely
+    -   Encrypt and decrypt securely
+    -   Both parties have to keep in synchronization portions of pad that has already been used, so that both parties can continue to communicate
+
+### Summary of Ciphers
+
+| Feature          | Caesar               | Vigenere                       | One-Time Pad                             |
+| ---------------- | -------------------- | ------------------------------ | ---------------------------------------- |
+| Cipher type      | Monoalphabetic       | Polyalphabetic                 | Polyalphabetic (random)                  |
+| Key type         | Single integer shift | Repeating keyword              | Random string (same length as message)   |
+| Key length       | 1                    | Variable                       | Same as message                          |
+| Key reuse        | Always reused        | Repeats after length           | Never reused                             |
+| Security         | Very weak            | Moderate (historically strong) | **Perfect**                              |
+| Ease of use      | Very easy            | Moderate                       | Difficult (key distribution)             |
+| Modern relevance | Educational          | Historical                     | Theoretical benchmark for secure systems |
+
+### Randomness
+
+#### Informal Notions
+
+-   Suppose $X_i$ is a bit $i$ of one-time pad
+-   Random one-time pad bits means $P(X_i=0)=P(x_i=1) = 0.5$
+-   Successive bits are independent of each other $P(X_{i+1} \space\text{or}\space \text{preceding}X_i\text{s}) = P(X_{i+1})$
+
+#### Concepts
+
+-   Randomness is found everywhere in cryptography
+    -   Generation of secret keys
+    -   Encryption schemes
+    -   Attacks on cryptosystems
+-   Without randomness, cryptography would be impossible because all operations would become predictable
+-   Non-randomness is often synonymous with insecurity
+-   Crypto notion of randonmess is much more stringent than randomness needed in simulation
+-   Crypto randomness is also more stringent than RNGs
